@@ -210,30 +210,30 @@ function FileRow({ item, reduce, delay, fresh, canRetry, onRemove, onRetry, remo
           <span>{formatFileSize(item.size)}</span>
           {phase && <><span className={styles.dot} aria-hidden="true">·</span><span className={styles.phase}><AnimatePresence mode="popLayout" initial={false}>
             <Swap key={phase} className={`${styles.state} ${phase === "uploaded" ? styles.uploaded : phase === "failed" ? styles.failed : ""}`} initial={reduce ? { opacity: 0 } : textIn} animate={shown} exit={reduce ? { opacity: 0, transition: fade } : textOut} transition={reduce ? fade : enter}>
-              {phase === "uploading" ? <span>Uploading <motion.span className={styles.percent}>{percent}</motion.span></span>
-                : phase === "uploaded" ? <><DrawnCheck reduce={reduce}/><span>Uploaded</span></>
-                    : <><CircleAlert className={styles.stateIcon} size={14} strokeWidth={2.25} aria-hidden="true"/><span className={styles.reason} title={item.error}><span className={styles.srOnly}>Failed: </span>{item.error || "Upload failed"}</span></>}
+              {phase === "uploading" ? <span>Subiendo <motion.span className={styles.percent}>{percent}</motion.span></span>
+                : phase === "uploaded" ? <><DrawnCheck reduce={reduce}/><span>Subido</span></>
+                    : <><CircleAlert className={styles.stateIcon} size={14} strokeWidth={2.25} aria-hidden="true"/><span className={styles.reason} title={item.error}><span className={styles.srOnly}>Failed: </span>{item.error || "No se pudo subir"}</span></>}
             </Swap>
           </AnimatePresence></span></>}
         </span>
         {/* The bar opens with the upload, fills on a spring, then folds away just after the check draws. */}
         <AnimatePresence initial={false}>{phase === "uploading" && <motion.span key="bar" className={styles.barFrame} initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={reduce ? { opacity: 0, transition: fade } : { height: 0, opacity: 0, transition: { height: { ...collapse, delay: .22 }, opacity: { ...exitFast, delay: .16 } } }} transition={reduce ? fade : { height: motionTokens.spring.smooth, opacity: enter }}>
-          <span className={styles.bar} role="progressbar" aria-label={`Uploading ${item.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(clamp(target))}><motion.span className={styles.barFill} style={{ x }}/></span>
+          <span className={styles.bar} role="progressbar" aria-label={`Subiendo ${item.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(clamp(target))}><motion.span className={styles.barFill} style={{ x }}/></span>
         </motion.span>}</AnimatePresence>
       </span>
       <span className={styles.actions}>
         {/* Retry opens its own width, so the name column narrows on a spring instead of losing space in one frame. */}
         <AnimatePresence initial={false}>{retry && <motion.span key="retry" className={styles.retrySlot} initial={reduce ? { opacity: 0 } : { width: 0, opacity: 0 }} animate={{ width: "auto", opacity: 1 }} exit={reduce ? { opacity: 0, transition: fade } : { width: 0, opacity: 0, transition: { width: collapse, opacity: { duration: motionTokens.duration.instant } } }} transition={reduce ? fade : { width: motionTokens.spring.smooth, opacity: enter }}>
           <motion.span className={styles.retryInner} initial={reduce ? false : { scale: .8 }} animate={{ scale: 1 }} transition={reduce ? instant : motionTokens.spring.snappy}>
-            <button type="button" className={styles.retry} onClick={onRetry} aria-label={`Retry ${item.name}`} title="Retry"><RotateCw size={14} strokeWidth={2} aria-hidden="true"/><span className={styles.retryLabel}>Retry</span></button>
+            <button type="button" className={styles.retry} onClick={onRetry} aria-label={`Reintentar ${item.name}`} title="Reintentar"><RotateCw size={14} strokeWidth={2} aria-hidden="true"/><span className={styles.retryLabel}>Reintentar</span></button>
           </motion.span>
         </motion.span>}</AnimatePresence>
-        <button ref={removeRef} type="button" className={styles.remove} onClick={onRemove} aria-label={`Remove ${item.name}`} title="Remove"><X size={16} strokeWidth={1.75} aria-hidden="true"/></button>
+        <button ref={removeRef} type="button" className={styles.remove} onClick={onRemove} aria-label={`Quitar ${item.name}`} title="Quitar"><X size={16} strokeWidth={1.75} aria-hidden="true"/></button>
       </span>
     </motion.div>
   </motion.li>;
 }
-export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesChange, label = "Add files", description = "Drop files here or choose from your device", defaultItems, onUpload, maxSize, listPlacement = "below", note, dropLabel, compactAt }: FileDropzoneProps) {
+export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesChange, label = "Agregar archivos", description = "Soltá archivos acá o elegilos desde tu dispositivo", defaultItems, onUpload, maxSize, listPlacement = "below", note, dropLabel, compactAt }: FileDropzoneProps) {
     const [items, setItems] = useState<FileDropzoneItem[]>(() => defaultItems ?? []);
     const [dragging, setDragging] = useState(false);
     const [error, setError] = useState("");
@@ -338,13 +338,13 @@ export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesCha
             if (controller.signal.aborted)
                 return;
             patch(item.id, current => ({ ...current, status: "uploaded", progress: 100 }));
-            setAnnouncement(`${item.name} uploaded`);
+            setAnnouncement(`${item.name} subido`);
         }, (reason: unknown) => {
             if (controller.signal.aborted)
                 return;
-            const message = reason instanceof Error && reason.message ? reason.message : "Upload failed";
+            const message = reason instanceof Error && reason.message ? reason.message : "No se pudo subir";
             patch(item.id, current => ({ ...current, status: "failed", error: message, retryable: true }));
-            setAnnouncement(`${item.name} failed. ${message}`);
+            setAnnouncement(`${item.name} falló. ${message}`);
         }).finally(() => { if (controllers.current.get(item.id) === controller)
             controllers.current.delete(item.id); });
     }
@@ -362,11 +362,11 @@ export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesCha
             const preview = file.type.startsWith("image/") && typeof URL.createObjectURL === "function" ? URL.createObjectURL(file) : undefined;
             if (preview)
                 ownedPreviews.current.set(id, preview);
-            return { id, name: file.name, size: file.size, file, preview, status: tooLarge ? "failed" : onUpload ? "uploading" : undefined, progress: 0, error: tooLarge ? `File is larger than ${formatFileSize(maxSize)}` : undefined, retryable: !tooLarge };
+            return { id, name: file.name, size: file.size, file, preview, status: tooLarge ? "failed" : onUpload ? "uploading" : undefined, progress: 0, error: tooLarge ? `El archivo supera ${formatFileSize(maxSize)}` : undefined, retryable: !tooLarge };
         });
         const rejected = matching.length !== list.length;
         const overflow = fresh.length > added.length;
-        setError(rejected ? (list.length - matching.length === 1 && list.length === 1 ? `${list[0]!.name} is not an accepted file type.` : "Some files were not added because their type is not accepted.") : overflow ? `You can add up to ${maxFiles} ${maxFiles === 1 ? "file" : "files"}.` : "");
+        setError(rejected ? (list.length - matching.length === 1 && list.length === 1 ? `${list[0]!.name} no es un tipo de archivo aceptado.` : "Algunos archivos no se agregaron porque su tipo no es aceptado.") : overflow ? `Podés agregar hasta ${maxFiles} ${maxFiles === 1 ? "archivo" : "archivos"}.` : "");
         if (rejected || overflow)
             shakeZone();
         if (!added.length)
@@ -381,7 +381,7 @@ export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesCha
         setItems(current => multiple ? [...current, ...added] : added);
         onFilesChange?.(filesOf(next));
         const failed = added.filter(item => item.status === "failed");
-        setAnnouncement(`${added.length} ${added.length === 1 ? "file" : "files"} added.${failed.length ? ` ${failed.map(item => `${item.name}: ${item.error}`).join(". ")}.` : ""}`);
+        setAnnouncement(`${added.length} ${added.length === 1 ? "archivo agregado" : "archivos agregados"}.${failed.length ? ` ${failed.map(item => `${item.name}: ${item.error}`).join(". ")}.` : ""}`);
         added.filter(item => item.status === "uploading").forEach(startUpload);
     }
     // Focus stays in the list: the next row's remove button, else the previous one, else the drop target.
@@ -399,14 +399,14 @@ export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesCha
         }
         setItems(current => current.filter(item => item.id !== target.id));
         setError("");
-        setAnnouncement(`${target.name} removed`);
+        setAnnouncement(`${target.name} quitado`);
         if (target.file)
             onFilesChange?.(filesOf(next));
         requestAnimationFrame(() => (neighbor ? removeRefs.current.get(neighbor.id) : dropRef.current)?.focus());
     }
     // The retry button leaves with the failure, so focus moves to the row's remove button.
     function retryItem(item: FileDropzoneItem) {
-        setAnnouncement(`Retrying ${item.name}`);
+        setAnnouncement(`Reintentando ${item.name}`);
         startUpload(item);
         requestAnimationFrame(() => removeRefs.current.get(item.id)?.focus());
     }
@@ -455,13 +455,13 @@ export function FileDropzone({ accept, multiple = true, maxFiles = 5, onFilesCha
         return () => document.removeEventListener("paste", onPaste);
     }, [pasteArmed]);
     const carriesFiles = (event: DragEvent) => Array.from(event.dataTransfer?.types ?? []).includes("Files");
-    const dropCopy = dropLabel ?? (onUpload ? "Drop to upload" : multiple ? "Drop to add files" : "Drop to add the file");
-    const noteCopy = note ?? (accept ? `Accepted: ${accept}` : `Up to ${maxFiles} ${maxFiles === 1 ? "file" : "files"}`);
+    const dropCopy = dropLabel ?? (onUpload ? "Soltá para subir" : multiple ? "Soltá para agregar" : "Soltá para agregar el archivo");
+    const noteCopy = note ?? (accept ? `Aceptados: ${accept}` : `Hasta ${maxFiles} ${maxFiles === 1 ? "archivo" : "archivos"}`);
     // Slots open and fold their own height, so the prompt changes shape on a spring instead of in one frame.
     const slot = { initial: reduce ? { opacity: 0 } : { height: 0, opacity: 0 }, animate: { height: "auto", opacity: 1 }, exit: reduce ? { opacity: 0, transition: fade } : { height: 0, opacity: 0, transition: { height: collapse, opacity: exitFast } }, transition: reduce ? fade : { height: motionTokens.spring.smooth, opacity: enter } };
     const rowsInside = inside && items.length > 0;
     // The list's own padding opens with the first row, so the gap under the target never appears in one frame.
-    const list = <motion.ul className={styles.list} aria-label="Files" aria-hidden={items.length ? undefined : true} onKeyDown={moveFocus} initial={false} animate={{ paddingTop: items.length && !inside ? 4 : 0, paddingBottom: items.length && inside ? 12 : 0 }} transition={reduce ? instant : motionTokens.spring.smooth}>
+    const list = <motion.ul className={styles.list} aria-label="Archivos" aria-hidden={items.length ? undefined : true} onKeyDown={moveFocus} initial={false} animate={{ paddingTop: items.length && !inside ? 4 : 0, paddingBottom: items.length && inside ? 12 : 0 }} transition={reduce ? instant : motionTokens.spring.smooth}>
     <AnimatePresence initial={false}>{items.map((item, index) => <FileRow key={item.id} item={item} reduce={reduce} delay={reduce ? 0 : Math.min(Math.max(0, index - batchStart), 7) * motionTokens.stagger.item * 1.6} fresh={freshIds.has(item.id)} canRetry={!!onUpload} onRemove={() => removeItem(item)} onRetry={() => retryItem(item)} removeRef={node => { if (node)
             removeRefs.current.set(item.id, node);
         else

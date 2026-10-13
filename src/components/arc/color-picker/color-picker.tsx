@@ -35,6 +35,10 @@ export interface ColorPickerProps {
     maxSwatches?: number;
     defaultFormat?: ColorFormat;
     className?: string;
+    /** Shows the opacity slider. Off for colors that must stay opaque. */
+    alpha?: boolean;
+    /** Names what the contrast readout compares against. */
+    contrastLabel?: string;
 }
 export type Hsva = {
     h: number;
@@ -277,7 +281,7 @@ function Chip({ color, className }: {
 }
 let swatchCount = 0;
 const newId = () => `swatch-${Date.now().toString(36)}-${swatchCount++}`;
-export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, background = "#FFFFFF", label = "Color", swatches: swatchesProp, defaultSwatches, onSwatchesChange, maxSwatches = 7, defaultFormat = "hex", className, }: ColorPickerProps) {
+export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, background = "#FFFFFF", label = "Color", swatches: swatchesProp, defaultSwatches, onSwatchesChange, maxSwatches = 7, defaultFormat = "hex", className, alpha = true, contrastLabel = "sobre el fondo", }: ColorPickerProps) {
     const uid = useId().replace(/[^a-zA-Z0-9-]/g, "");
     const hydrated = useHydrated();
     const reduced = !!useReducedMotion() && hydrated;
@@ -325,7 +329,8 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
     const bg = parseColor(background);
     const ratio = contrast(hsva, bg ? hsvToRgb(bg) : { r: 1, g: 1, b: 1, a: 1 });
     const text = format(hsva, kind);
-    function commit(next: Hsva) {
+    function commit(input: Hsva) {
+        const next = alpha ? input : { ...input, a: 1 };
         setHsva(next);
         const nextHex = toHex(next);
         if (nextHex !== hex)
@@ -501,19 +506,19 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
     </button>
 
     {shown && <div className={styles.float} data-open={open || undefined}>
-      <motion.div ref={panelRef} id={`${uid}-panel`} role="dialog" aria-label={`${label} color`} className={styles.panel} inert={!open} style={{ clipPath, opacity: fade }}>
+      <motion.div ref={panelRef} id={`${uid}-panel`} role="dialog" aria-label={`Color: ${label}`} className={styles.panel} inert={!open} style={{ clipPath, opacity: fade }}>
         <div className={styles.head}>
           <Chip color={css}/>
           <span className={styles.triggerText}><span className={styles.name}>{label}</span><span className={styles.hex}>{hex}</span></span>
           <motion.span className={styles.headActions} style={{ opacity: contentOpacity }}>
-            {canPick && <button type="button" className={styles.iconButton} aria-label="Pick a color from the screen" onClick={pickFromScreen}><Pipette size={18} strokeWidth={1.75} aria-hidden="true"/></button>}
-            <button type="button" className={styles.iconButton} aria-label="Done" onClick={() => hide()}><Check size={18} strokeWidth={1.75} aria-hidden="true"/></button>
+            {canPick && <button type="button" className={styles.iconButton} aria-label="Tomar un color de la pantalla" onClick={pickFromScreen}><Pipette size={18} strokeWidth={1.75} aria-hidden="true"/></button>}
+            <button type="button" className={styles.iconButton} aria-label="Listo" onClick={() => hide()}><Check size={18} strokeWidth={1.75} aria-hidden="true"/></button>
           </motion.span>
         </div>
 
         <motion.div className={styles.body} style={{ opacity: contentOpacity, y: contentY }}>
           <div className={styles.area} data-active={active === "area" || undefined} {...areaPad}>
-            <motion.div ref={areaThumb} className={styles.areaThumb} role="slider" tabIndex={0} aria-roledescription="2D slider" aria-label="Saturation and brightness" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(hsva.s * 100)} aria-valuetext={`Saturation ${Math.round(hsva.s * 100)}%, brightness ${Math.round(hsva.v * 100)}%`} style={{ left: areaLeft, top: areaTop }} onKeyDown={event => {
+            <motion.div ref={areaThumb} className={styles.areaThumb} role="slider" tabIndex={0} aria-roledescription="2D slider" aria-label="Saturación y brillo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(hsva.s * 100)} aria-valuetext={`Saturación ${Math.round(hsva.s * 100)}%, brillo ${Math.round(hsva.v * 100)}%`} style={{ left: areaLeft, top: areaTop }} onKeyDown={event => {
                 const step = stepFor(event, "both");
                 if (!step)
                     return;
@@ -522,15 +527,15 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
             }}/>
           </div>
 
-          <Slider label="Hue" value={hsva.h} valueText={`${Math.round(hsva.h)} degrees`} max={360} unit={1} className={styles.hue} reduced={reduced} fill={pure} onChange={h => commit({ ...hsva, h: clamp(h, 0, 359.9) })} active={active === "hue"} onActive={on => setActive(on ? "hue" : null)}/>
-          <Slider label="Opacity" value={hsva.a * 100} valueText={`${Math.round(hsva.a * 100)}%`} max={100} unit={1} className={styles.alpha} reduced={reduced} fill={css} onChange={a => commit({ ...hsva, a: clamp(a / 100) })} active={active === "alpha"} onActive={on => setActive(on ? "alpha" : null)}/>
+          <Slider label="Tono" value={hsva.h} valueText={`${Math.round(hsva.h)} grados`} max={360} unit={1} className={styles.hue} reduced={reduced} fill={pure} onChange={h => commit({ ...hsva, h: clamp(h, 0, 359.9) })} active={active === "hue"} onActive={on => setActive(on ? "hue" : null)}/>
+          {alpha && <Slider label="Opacidad" value={hsva.a * 100} valueText={`${Math.round(hsva.a * 100)}%`} max={100} unit={1} className={styles.alpha} reduced={reduced} fill={css} onChange={a => commit({ ...hsva, a: clamp(a / 100) })} active={active === "alpha"} onActive={on => setActive(on ? "alpha" : null)}/>}
 
           <motion.div className={styles.field} data-invalid={invalid || undefined} style={{ x: fieldX }}>
-            <button type="button" className={styles.format} onClick={cycleFormat} aria-label={`Format: ${formatNames[kind]}. Switch format`}>
+            <button type="button" className={styles.format} onClick={cycleFormat} aria-label={`Formato: ${formatNames[kind]}. Cambiar formato`}>
               <TextMorph>{formatNames[kind]}</TextMorph>
             </button>
             <span className={styles.inputWrap}>
-              <input ref={inputRef} className={styles.input} value={draft ?? text} spellCheck={false} autoComplete="off" aria-label={`${label} in ${formatNames[kind]}`} aria-invalid={invalid || undefined} aria-describedby={invalid ? `${uid}-error` : undefined} data-morphing={morph ? "" : undefined} onChange={event => { setDraft(event.target.value); setInvalid(false); }} onKeyDown={event => {
+              <input ref={inputRef} className={styles.input} value={draft ?? text} spellCheck={false} autoComplete="off" aria-label={`${label} en ${formatNames[kind]}`} aria-invalid={invalid || undefined} aria-describedby={invalid ? `${uid}-error` : undefined} data-morphing={morph ? "" : undefined} onChange={event => { setDraft(event.target.value); setInvalid(false); }} onKeyDown={event => {
                 if (event.key === "Enter") {
                     event.preventDefault();
                     if (submitDraft())
@@ -549,29 +554,29 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
               {morph && <span className={styles.morph} aria-hidden="true"><TextMorph>{morph.phase === 0 ? morph.from : morph.to}</TextMorph></span>}
             </span>
           </motion.div>
-          <p id={`${uid}-error`} className={styles.error} aria-live="polite">{invalid ? "Enter a hex, RGB, HSL, or OKLCH color" : ""}</p>
+          <p id={`${uid}-error`} className={styles.error} aria-live="polite">{invalid ? "Escribí un color HEX, RGB, HSL u OKLCH" : ""}</p>
 
           <div className={styles.contrast}>
             <span className={styles.sample} aria-hidden="true">Aa</span>
             <span className={styles.ratio}><motion.span>{ratioText}</motion.span>:1</span>
-            <span className={styles.against}>against background</span>
+            <span className={styles.against}>{contrastLabel}</span>
             <span className={styles.grade} data-grade={grade === "Fails" ? "fail" : grade === "AA large" ? "large" : "pass"}>
               <AnimatePresence mode="popLayout" initial={false}>
-                <motion.span key={grade} initial={hidden} animate={{ opacity: 1, y: "0em" }} exit={{ ...hidden, transition: { duration: duration.instant } }} transition={reduced ? { duration: duration.instant } : { duration: duration.standard, ease: [...ease.enter] }}>{grade}</motion.span>
+                <motion.span key={grade} initial={hidden} animate={{ opacity: 1, y: "0em" }} exit={{ ...hidden, transition: { duration: duration.instant } }} transition={reduced ? { duration: duration.instant } : { duration: duration.standard, ease: [...ease.enter] }}>{grade === "Fails" ? "Bajo" : grade === "AA large" ? "AA grande" : grade}</motion.span>
               </AnimatePresence>
             </span>
-            <span className={styles.srOnly}>{`Contrast ${ratio.toFixed(2)} to 1, ${grade === "Fails" ? "fails" : `passes ${grade}`}`}</span>
+            <span className={styles.srOnly}>{`Contraste ${ratio.toFixed(2)} a 1, ${grade === "Fails" ? "insuficiente" : `cumple ${grade}`}`}</span>
           </div>
 
           <div className={styles.swatches}>
-            <button type="button" className={styles.add} onClick={saveSwatch} aria-label={`Save ${hex}`}><Plus size={16} strokeWidth={1.75} aria-hidden="true"/></button>
-            <Reorder.Group as="div" axis="x" values={swatches} onReorder={setSwatches} className={styles.swatchList} role="listbox" aria-label="Saved colors" aria-orientation="horizontal">
+            <button type="button" className={styles.add} onClick={saveSwatch} aria-label={`Guardar ${hex}`}><Plus size={16} strokeWidth={1.75} aria-hidden="true"/></button>
+            <Reorder.Group as="div" axis="x" values={swatches} onReorder={setSwatches} className={styles.swatchList} role="listbox" aria-label="Colores guardados" aria-orientation="horizontal">
               <AnimatePresence initial={false}>
                 {swatches.map((entry, index) => <Reorder.Item key={entry.id} value={entry} as="div" className={styles.swatchSlot} dragElastic={.12} initial={reduced ? { opacity: 0 } : { opacity: 0, scale: .4 }} animate={{ opacity: 1, scale: 1 }} exit={reduced ? { opacity: 0 } : { opacity: 0, scale: .4, transition: { duration: duration.fast } }} transition={reduced ? instant : { ...spring.snappy, layout: spring.smooth }} whileDrag={reduced ? undefined : { scale: 1.15, zIndex: 2 }} onDragStart={() => { dragged.current = true; }} onDragEnd={() => requestAnimationFrame(() => { dragged.current = false; })}>
                   <button ref={node => { if (node)
                 swatchRefs.current.set(entry.id, node);
             else
-                swatchRefs.current.delete(entry.id); }} type="button" role="option" aria-selected={entry.color.toUpperCase() === hex} className={styles.swatch} data-current={entry.color.toUpperCase() === hex || undefined} aria-label={`${entry.color}. Alt and arrow keys to move, Delete to remove`} tabIndex={entry.id === swatchTab ? 0 : -1} onFocus={() => setFocusSwatch(entry.id)} onKeyDown={event => onSwatchKey(event, index)} onClick={() => { if (dragged.current)
+                swatchRefs.current.delete(entry.id); }} type="button" role="option" aria-selected={entry.color.toUpperCase() === hex} className={styles.swatch} data-current={entry.color.toUpperCase() === hex || undefined} aria-label={`${entry.color}. Alt y flechas para mover, Suprimir para quitar`} tabIndex={entry.id === swatchTab ? 0 : -1} onFocus={() => setFocusSwatch(entry.id)} onKeyDown={event => onSwatchKey(event, index)} onClick={() => { if (dragged.current)
                 return; const next = parseColor(entry.color, hsva.h); if (next)
                 commit(next); }}>
                     <Chip color={entry.color} className={styles.swatchChip}/>

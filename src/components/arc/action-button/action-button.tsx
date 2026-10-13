@@ -114,7 +114,7 @@ function MorphText({ text, reduced }: {
     </span>
   </motion.span>;
 }
-export function ActionButton({ label, successLabel = "Saved", pendingLabel = "Saving", onAction, resetAfterMs = 2400, onActionError, className, disabled, ...props }: ActionButtonProps) {
+export function ActionButton({ label, successLabel = "Listo", pendingLabel = "Procesando", onAction, resetAfterMs = 2400, onActionError, className, disabled, ...props }: ActionButtonProps) {
     const [state, setState] = useState<"idle" | "pending" | "success">("idle");
     const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);

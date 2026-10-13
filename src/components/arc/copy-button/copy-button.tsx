@@ -80,10 +80,10 @@ function MorphText({ text, reduced }: {
     </AnimatePresence>
   </motion.span>;
 }
-export function CopyButton({ value, label = "Copy", className, iconOnly = false, variant = "outline", disabled, onCopied }: CopyButtonProps) {
+export function CopyButton({ value, label = "Copiar", className, iconOnly = false, variant = "outline", disabled, onCopied }: CopyButtonProps) {
     const { state, copy } = useCopyFeedback();
     const reduced = useReducedMotion() ?? false;
-    const text = state === "copied" ? "Copied" : state === "error" ? "Failed" : label;
+    const text = state === "copied" ? "Copiado" : state === "error" ? "Error" : label;
     async function handleCopy() {
         if (await copy(value))
             onCopied?.();
@@ -97,7 +97,7 @@ export function CopyButton({ value, label = "Copy", className, iconOnly = false,
       </AnimatePresence>
     </span>
     {!iconOnly && <span className={styles.label} aria-hidden="true">
-      <span className={styles.measure}>{label}</span><span className={styles.measure}>Copied</span><span className={styles.measure}>Failed</span>
+      <span className={styles.measure}>{label}</span><span className={styles.measure}>Copiado</span><span className={styles.measure}>Error</span>
       <MorphText text={text} reduced={reduced}/>
     </span>}
   </button><span className={styles.srOnly} role="status" aria-live="polite">{state === "idle" ? "" : state === "error" ? `${label}: Could not copy` : `${label}: Copied`}</span></>;

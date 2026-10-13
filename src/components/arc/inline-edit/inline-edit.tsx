@@ -26,7 +26,7 @@ export interface InlineEditProps {
     /** Wraps onto several lines and grows in height. Enter still saves; Shift+Enter adds a line break. */
     multiline?: boolean;
     /** `title` for names and headings, `body` for descriptions. */
-    variant?: "title" | "body";
+    variant?: "title" | "body" | "compact";
     /** The element that holds the text, so a title can stay a heading. */
     as?: "span" | "p" | "h1" | "h2" | "h3";
     className?: string;
@@ -292,13 +292,13 @@ export function InlineEdit({ value, onSave, label, validate, placeholder = "", m
         const run = ++saveRun.current;
         setShown(next);
         setPhase("saving");
-        setAnnouncement(`Saving ${label.toLowerCase()}`);
+        setAnnouncement(`Guardando ${label.toLowerCase()}`);
         Promise.resolve().then(() => onSave(next)).then(() => {
             if (run !== saveRun.current)
                 return;
             setCommitted(next);
             setPhase("saved");
-            setAnnouncement(`${label} saved`);
+            setAnnouncement(`${label}: guardado`);
             later(() => setPhase(current => current === "saved" ? "idle" : current), 1800);
         }, () => {
             if (run !== saveRun.current)
@@ -358,7 +358,7 @@ export function InlineEdit({ value, onSave, label, validate, placeholder = "", m
     const message = error
         ? { key: `error:${error}`, tone: "error" as const, node: <><CircleAlert className={styles.messageIcon} size={14} strokeWidth={2} aria-hidden="true"/><span>{error}</span></> }
         : failed && !editing
-            ? { key: `failed:${failed}`, tone: "failed" as const, node: <><CircleAlert className={styles.messageIcon} size={14} strokeWidth={2} aria-hidden="true"/><span>{`Couldn’t save “${failed}”, so the last saved ${noun} is back.`} <button type="button" className={styles.retry} onClick={retry}>Try again</button></span></> }
+            ? { key: `failed:${failed}`, tone: "failed" as const, node: <><CircleAlert className={styles.messageIcon} size={14} strokeWidth={2} aria-hidden="true"/><span>{`No se pudo guardar “${failed}”; se restauró el valor anterior.`} <button type="button" className={styles.retry} onClick={retry}>Reintentar</button></span></> }
             : null;
     const slot = editing ? "edit" : phase;
     const describedBy = (hint: string) => [hint, message ? messageId : null].filter(Boolean).join(" ");
@@ -388,8 +388,8 @@ export function InlineEdit({ value, onSave, label, validate, placeholder = "", m
             <AnimatePresence initial={false}>
               <motion.span key={slot} className={styles.slotItem} initial={reduced ? fadeIn : iconIn} animate={rest} exit={reduced ? fadeOut : iconOut} transition={reduced ? { duration: motionTokens.duration.fast } : iconEnter}>
                 {slot === "edit" ? <span className={styles.actions}>
-                  <button type="button" className={styles.save} aria-label={`Save ${noun}`} onPointerDown={event => event.preventDefault()} onClick={() => submit("button")}><Check size={15} strokeWidth={2} aria-hidden="true"/></button>
-                  <button type="button" className={styles.cancel} aria-label="Cancel editing" onPointerDown={event => event.preventDefault()} onClick={cancel}><X size={15} strokeWidth={2} aria-hidden="true"/></button>
+                  <button type="button" className={styles.save} aria-label={`Guardar ${noun}`} onPointerDown={event => event.preventDefault()} onClick={() => submit("button")}><Check size={15} strokeWidth={2} aria-hidden="true"/></button>
+                  <button type="button" className={styles.cancel} aria-label="Cancelar edición" onPointerDown={event => event.preventDefault()} onClick={cancel}><X size={15} strokeWidth={2} aria-hidden="true"/></button>
                 </span>
             : slot === "saving" ? <span className={styles.spinner} aria-hidden="true"/>
                 : slot === "saved" ? <span className={styles.saved} aria-hidden="true"><DrawnCheck reduced={reduced}/></span>
@@ -402,8 +402,8 @@ export function InlineEdit({ value, onSave, label, validate, placeholder = "", m
       </motion.span>
     </Tag>
     <Reveal id={messageId} message={message} reduced={reduced}/>
-    <span id={displayHintId} className={styles.srOnly}>Activate to edit.</span>
-    <span id={editHintId} className={styles.srOnly}>{multiline ? "Enter saves, Shift+Enter adds a line break, Escape cancels." : "Enter saves, Escape cancels."}</span>
+    <span id={displayHintId} className={styles.srOnly}>Activá para editar.</span>
+    <span id={editHintId} className={styles.srOnly}>{multiline ? "Enter guarda, Mayúsculas+Enter agrega un salto de línea, Escape cancela." : "Enter guarda, Escape cancela."}</span>
     <span className={styles.srOnly} role="status">{announcement}</span>
   </div>;
 }

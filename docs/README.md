@@ -1,5 +1,7 @@
 # Reconstrucción de Horario Studio
 
+> **Estado:** la reconstrucción ya está implementada. El contrato vigente está en [PLAN.md](../PLAN.md) y el registro de la implementación, en [08 · Implementación v2](08-implementacion-v2.md). El resto de este documento conserva la auditoría y la propuesta originales: los hallazgos de 01 describen la versión anterior.
+
 Auditoría y propuesta del 13 de octubre de 2026. Se revisó el código real, se probaron flujos en un navegador aislado, se inspeccionó `tech-stack-architect` y se evaluó todo el catálogo gratuito de UIArc. Participaron cuatro subagentes Sol 6.1 High. Este trabajo agrega documentación y evidencia; no implementa cambios en la aplicación.
 
 ## Recomendación
@@ -31,6 +33,7 @@ Build y lint del proyecto pasan. Eso no detecta estas fallas de uso y representa
 | [06 · Plan de implementación](06-plan-de-implementacion.md) | Decisiones integradas, entregas con dependencias y puertas de aceptación, cobertura de todos los pedidos. |
 | [Resumen visual](resumen-visual.html) | Prioridades, comparación gráfica, esquema del estudio y secuencia de entregas. |
 | [07 · Preparación y encargo para Opus](07-preparacion-y-encargo-opus.md) | Componentes, tokens, fuentes y dependencias preparados; instrucciones actualizadas para implementar con autonomía y revisión visual. |
+| [08 · Implementación v2](08-implementacion-v2.md) | Cobertura de cada pedido en el código, decisiones tomadas al implementar, revisión visual y pendientes. |
 
 El documento 06 fija las decisiones integradas. El 01 explica el estado actual y las severidades de incidentes; el 02 describe comportamiento objetivo; el 03 traduce ese comportamiento a arquitectura. Las prioridades P0/P1 dentro de las especificaciones describen requisitos del nuevo producto, no sólo severidad de bugs existentes.
 

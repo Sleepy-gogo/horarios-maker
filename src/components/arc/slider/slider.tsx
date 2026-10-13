@@ -215,7 +215,7 @@ export function Slider<T extends SliderValue = number>({ label, value, defaultVa
     const [internal, setInternal] = useState(() => toArray(defaultValue));
     const values = value === undefined ? internal : toArray(value);
     const decimals = Math.max(decimalsOf(step), decimalsOf(min));
-    const formatValue = format ?? ((input: number) => input.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
+    const formatValue = format ?? ((input: number) => input.toLocaleString("es-AR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
     const gap = isRange ? minStepsBetweenThumbs * step : 0;
     const pct = (input: number) => ((input - min) / span) * 100;
     const valueAt = (percent: number) => min + (percent / 100) * span;

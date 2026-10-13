@@ -268,7 +268,7 @@ function StepButton({ toward, label, disabled, controls, limit, pressed, iconRef
     const Icon = toward > 0 ? Plus : Minus;
     // A limit dims the button but keeps it focusable, so a press there strains the value instead of dropping focus.
     // Mouse presses keep focus where it was: an open draft commits with the step, and the stepper never steals the ring.
-    return <button type="button" className={styles.step} disabled={disabled} aria-controls={controls} aria-label={`${toward > 0 ? "Increase" : "Decrease"} ${label}`} aria-disabled={limit || undefined} data-pressed={pressed || undefined} onPointerDown={event => { if (event.button === 0)
+    return <button type="button" className={styles.step} disabled={disabled} aria-controls={controls} aria-label={`${toward > 0 ? "Aumentar" : "Disminuir"} ${label}`} aria-disabled={limit || undefined} data-pressed={pressed || undefined} onPointerDown={event => { if (event.button === 0)
         onPress(); }} onPointerUp={onRelease} onPointerLeave={onRelease} onPointerCancel={onRelease} onMouseDown={event => event.preventDefault()} onClick={event => { if (event.detail === 0)
         onActivate(); }} onContextMenu={event => event.preventDefault()}>
     <span ref={iconRef} className={styles.icon}><Icon size={16} strokeWidth={1.75} aria-hidden="true"/></span>
@@ -279,7 +279,7 @@ function StepButton({ toward, label, disabled, controls, limit, pressed, iconRef
  * large steps, Home and End jump to the limits, and `scrub` lets the label be dragged. Typing edits a plain draft that
  * applies live while valid; the rolling digits return once it commits on Enter, blur, or the next step.
  */
-export function NumberField({ label, value, defaultValue = 0, onValueChange, min = 0, max = Number.MAX_SAFE_INTEGER, step: stepProp = 1, largeStep, description, disabled, id, prefix, suffix, scrub = false, locale = "en-US", formatOptions, size = "md", limitHint = true }: NumberFieldProps) {
+export function NumberField({ label, value, defaultValue = 0, onValueChange, min = 0, max = Number.MAX_SAFE_INTEGER, step: stepProp = 1, largeStep, description, disabled, id, prefix, suffix, scrub = false, locale = "es-AR", formatOptions, size = "md", limitHint = true }: NumberFieldProps) {
     const reduced = useReducedMotion();
     const generatedId = useId();
     const inputId = id ?? generatedId;
@@ -382,7 +382,7 @@ export function NumberField({ label, value, defaultValue = 0, onValueChange, min
         const limit = Math.sign(next - clamped);
         if (limit && source !== "scrub") {
             strain(limit > 0 ? 1 : -1, source);
-            setAnnouncement(`${spoken(clamped)}, ${limit > 0 ? "maximum" : "minimum"}`);
+            setAnnouncement(`${spoken(clamped)}, ${limit > 0 ? "máximo" : "mínimo"}`);
         }
         else if (source === "button" && clamped !== latest.current)
             setAnnouncement(spoken(clamped));
@@ -555,7 +555,7 @@ export function NumberField({ label, value, defaultValue = 0, onValueChange, min
     const outside: 1 | -1 | 0 = typed === null ? 0 : typed > max ? 1 : typed < min && underWarn ? -1 : 0;
     const noteEdge = limitHint ? outside || pushed : 0;
     const noteLimit = noteEdge > 0 ? max : min;
-    const noteText = !noteEdge ? "" : typeof limitHint === "function" ? limitHint(noteEdge > 0 ? "max" : "min", noteLimit) : `${noteEdge > 0 ? "Max" : "Min"} ${spoken(noteLimit)}`;
+    const noteText = !noteEdge ? "" : typeof limitHint === "function" ? limitHint(noteEdge > 0 ? "max" : "min", noteLimit) : `${noteEdge > 0 ? "Máx." : "Mín."} ${spoken(noteLimit)}`;
     const describedBy = [hintId, outside && limitHint ? limitId : undefined].filter(Boolean).join(" ") || undefined;
     return <div className={styles.field} data-size={size}>
     <div className={styles.head}>

@@ -87,7 +87,7 @@ export function BottomSheet({ trigger, open: openProp, defaultOpen = false, onOp
     <AnimatePresence>{open && <DialogPrimitive.Portal key="sheet" forceMount><Sheet {...props} onDismiss={dismiss}/></DialogPrimitive.Portal>}</AnimatePresence>
   </DialogPrimitive.Root>;
 }
-function Sheet({ title, description, detents = [.45, .92], initialDetent = 0, onDetentChange, closeLabel = "Close", className, children, onDismiss }: Omit<BottomSheetProps, "trigger" | "open" | "defaultOpen" | "onOpenChange"> & {
+function Sheet({ title, description, detents = [.45, .92], initialDetent = 0, onDetentChange, closeLabel = "Cerrar", className, children, onDismiss }: Omit<BottomSheetProps, "trigger" | "open" | "defaultOpen" | "onOpenChange"> & {
     onDismiss: () => void;
 }) {
     const [isPresent, safeToRemove] = usePresence();
@@ -142,7 +142,7 @@ function Sheet({ title, description, detents = [.45, .92], initialDetent = 0, on
             detentRef.current = stop;
             setDetent(stop);
             onDetentChange?.(stop);
-            setAnnouncement(stop === top ? "Sheet expanded" : stop === 0 ? "Sheet collapsed" : `Sheet at ${Math.round(stops[stop]! * 100)} percent height`);
+            setAnnouncement(stop === top ? "Panel expandido" : stop === 0 ? "Panel contraído" : `Panel al ${Math.round(stops[stop]! * 100)} por ciento`);
         }
         // Collapsing takes the content back to its start, so the peek always shows the top of it.
         const body = bodyRef.current;
@@ -431,7 +431,7 @@ function Sheet({ title, description, detents = [.45, .92], initialDetent = 0, on
         event.preventDefault(); }}>
       <motion.div ref={sheetRef} className={[styles.sheet, className].filter(Boolean).join(" ")} style={style} data-expanded={expanded ? "" : undefined} onKeyDown={sheetKey}>
         <div className={styles.header} onPointerDown={headerDown} onPointerMove={headerMove} onPointerUp={headerUp} onPointerCancel={headerUp}>
-          <button type="button" className={styles.grabber} data-grabber="" aria-label={expanded ? "Collapse sheet" : "Expand sheet"} aria-expanded={expanded} onClick={grabberClick} onKeyDown={grabberKey}>
+          <button type="button" className={styles.grabber} data-grabber="" aria-label={expanded ? "Contraer panel" : "Expandir panel"} aria-expanded={expanded} onClick={grabberClick} onKeyDown={grabberKey}>
             <span className={styles.grabberBar} aria-hidden="true"/>
           </button>
           <div className={styles.headRow}>

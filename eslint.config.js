@@ -19,6 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // A leading underscore marks a parameter kept only as a memoization key for the React Compiler.
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
   {
     files: ['src/components/ui/**/*.{ts,tsx}', 'src/components/arc/**/*.{ts,tsx}'],

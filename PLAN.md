@@ -1,191 +1,121 @@
 # PLAN
 
+Contrato vigente de Horario Studio v2. Antes de un cambio grande, revisá este archivo y actualizalo si el cambio altera algún contrato. El detalle de diseño está en `docs/02`, `docs/03` y `docs/06`; el estado de la implementación, en `docs/08`.
+
 ## Objetivo
 
-Construir una SPA en espanol para crear, personalizar, compartir y exportar horarios de cursada como imagen.
+Una SPA estática en español para crear, diseñar, guardar y exportar horarios de cursada semanales. No tiene backend. Lo que se ve en el lienzo es exactamente lo que se descarga.
 
-El flujo principal es:
+## Restricciones
 
-1. Editar bloques de clase.
-2. Ver el resultado instantaneamente en una lamina.
-3. Guardar el horario localmente sin contaminar la URL.
-4. Compartir el horario mediante exportacion/importacion de JSON.
-5. Descargar el horario como imagen lista para usar.
+- No hay backend. La URL queda limpia: los enlaces `?s=` viejos solo se leen una vez para migrarlos.
+- La interfaz está toda en español.
+- No se usa blur (`backdrop-filter`) en ningún lugar.
+- No se importa `foundation.upstream.css` de forma global. Los tokens viven en `src/styles/tokens.css` y `src/styles/arc-tokens.css`.
+- Vista, SVG y PNG salen de la misma escena y del mismo string SVG. No hay un segundo renderizador.
+- Una fuente que falló nunca se reemplaza en silencio en una descarga: la exportación se bloquea con un motivo y una acción.
+- Nunca se sobrescriben datos originales: la migración y la importación siempre crean proyectos nuevos.
+- No se suman dependencias pesadas para problemas chicos.
 
-## Alcance del MVP
+## Modelo de datos (schemaVersion 2)
 
-- SPA cliente, sin backend.
-- Interfaz completamente en espanol.
-- Persistencia local automatica.
-- Editor de bloques con:
-  - dia
-  - hora de inicio
-  - hora de fin
-  - materia
-  - aula
-  - detalle
-  - color de fondo
-  - color de texto
-- Personalizacion del documento:
-  - titulo
-  - subtitulo
-  - modo de compactacion
-  - rango horario automatico o manual
-  - hora de inicio y fin del documento
-  - aspect ratio
-  - tema visual
-  - densidad
-  - grosor de lineas
-  - esquinas rectas o redondeadas
-  - toggles para aula, detalle, horas y leyenda
-- Exportacion:
-  - PNG
-  - SVG
-  - JSON
-- Estado inicial en blanco.
+La fuente de verdad es `src/domain/types.ts` y la validación está en `src/domain/schema.ts` (zod).
 
-## Restricciones del proyecto
+- **`ScheduleDocument`:** `schemaVersion`, `id`, `createdAt`, `subjects[]`, `blocks[]`, `settings` y `appearance`.
+- **`Subject`:** `id`, `name`, `color` y `textColor`. Los colores son de la materia, así que todas sus clases los comparten.
+- **`Block`:**
+  - `id`, `subjectId`, `day` (`mon`…`sun`);
+  - `start` y `end` en minutos desde las 00:00, en pasos de 30, con `0 ≤ start < end ≤ 1440`;
+  - `room`, `kind` y `notes`.
+- **`DocumentSettings`:**
+  - `title`, `subtitle`;
+  - `page` (preset o tamaño propio, de 320 a 4000 px);
+  - `days` y `range` (rango visible de al menos una hora);
+  - `show` (qué textos se dibujan).
+- **`Appearance`:**
+  - página, colores, hoja, encabezado, grilla, bloques, leyenda y decoraciones;
+  - `type` (un `TextStyle` por rol, con su `FontRef`);
+  - `palette` para las materias nuevas.
+- **`FontRef`:** `source` (`local` o `google`), `id`, `family`, `version` fijada, `weight` e `italic`.
+- **Límites:** 200 materias, 600 clases y 100 pasos de historial. Los textos tienen topes (`TEXT_LIMITS`).
 
-- Sin backend.
-- Mantener la URL limpia por defecto.
-- Sin backend.
-- Compartir por enlace solo es aceptable si mas adelante existe compresion razonable o un backend para slugs cortos.
-- Evitar dependencias innecesarias si el navegador puede resolverlo.
-- Mantener la app liviana y facil de hostear estaticamente.
-- No introducir copy en ingles en la UI.
-- El preview y la exportacion deben salir del mismo motor visual para evitar diferencias.
+Las clases que quedan fuera de los días o del rango visibles no se pierden. Se listan como "Fuera del documento" y bloquean la exportación hasta que se ajusten.
 
-## Decisiones tecnicas actuales
+## Archivos
 
-- Stack: React + TypeScript + Vite.
-- Render del horario: SVG.
-- Exportacion:
-  - SVG: serializacion directa del nodo.
-  - PNG: rasterizacion del SVG a canvas.
-- Persistencia principal:
-  - `localStorage`
-- Compatibilidad legacy:
-  - lectura de `?s=...` para enlaces viejos
-  - limpieza inmediata de la URL despues de cargar
-- Intercambio manual:
-  - exportacion/importacion de JSON
-- Sin router por ahora.
+| Formato | Contenido |
+| --- | --- |
+| `horario-studio/project` | Un documento. |
+| `horario-studio/backup` | Todos los proyectos (incluida la papelera) y los temas. |
+| `horario-studio/theme` | Una `Appearance` con nombre. |
 
-## Modelo de datos
+`readImport` también acepta un documento v2 suelto y el formato v1. Para importar, primero se valida, después se muestra un resumen y recién al confirmar se guarda como proyecto nuevo.
 
-`AppState`
+## Almacenamiento
 
-- `version`
-- `settings`
-- `items`
+Se usa una base IndexedDB llamada `horario-studio`, versión 1, con cinco almacenes:
 
-`settings`
+| Almacén | Contenido |
+| --- | --- |
+| `projects` | Documento, `revision` (para detectar escrituras desde otra pestaña) y `deletedAt` (papelera de 7 días). |
+| `themes` | Temas guardados. |
+| `kv` | Preferencias (con copia en `localStorage` para aplicar el tema de la UI antes de abrir la base) y marcas de migración. |
+| `fonts` | Bytes de fuentes descargadas, con su hash. |
+| `legacy` | Originales v1 y enlaces, guardados tal cual. |
 
-- `title`
-- `subtitle`
-- `compactMode`
-- `timeRangeMode`
-- `documentStartHour`
-- `documentEndHour`
-- `aspectRatio`
-- `theme`
-- `density`
-- `strokeMode`
-- `cornerMode`
-- `uppercaseTitle`
-- `showRoom`
-- `showDetails`
-- `showLegend`
-- `showTimeLabels`
+### Autoguardado
 
-`items[]`
+- Se guarda 450 ms después de cada cambio, con Ctrl+S y antes de cambiar de proyecto.
+- Si guardar falla, el cambio de proyecto se cancela.
+- Si otra pestaña escribió antes (`revision`), se marca un conflicto y se ofrecen acciones.
+- `beforeunload` avisa cuando hay cambios sin guardar.
 
-- `id`
-- `day`
-- `start`
-- `end`
-- `subject`
-- `room`
-- `details`
-- `color`
-- `textColor`
+## Motor
 
-## Comportamiento esperado
+`src/engine`, en este orden:
 
-### Compactacion
+1. `layoutDocument(doc, resolveFont)` crea una `Scene`: rectángulos, corridas de glifos ya medidas, cajas de bloques con carril y conflicto, la geometría de la grilla y los `issues`.
+2. `sceneToSvg(scene)` convierte la escena en un único string SVG. El texto va como `<path>` definidos una vez por glifo: no hay `<text>` ni `font-family`.
+3. El lienzo inyecta ese string. La descarga SVG usa el mismo string, y la PNG lo rasteriza (`svgToPng`) hasta 8192 px por lado y 16 Mpx.
 
-- `uniforme`: cada hora ocupa el mismo alto visual.
-- `optimizado`: las horas sin cursada se comprimen para ahorrar espacio.
+Detalles:
 
-### Rango horario
+- **Superposiciones:** `assignLanes` reparte las clases superpuestas en carriles por día.
+- **Texto:** se mide con HarfBuzz, se corta en líneas y se trunca con elipsis; cuando no entra, deja un aviso.
+- **Contraste:** si el texto de una materia no llega a 4,5:1 sobre su fondo, se corrige automáticamente.
+- **Bloqueos de exportación:** `exportBlockers` junta los errores: fuentes no disponibles, clases fuera del documento, grilla demasiado baja y leyenda que no entra. Las advertencias (texto truncado, glifos que faltan en la fuente) se pueden aceptar.
 
-- `automatico`: el documento calcula el rango segun las materias cargadas.
-- `manual`: el usuario fija la hora inicial y final del documento.
+## Edición
 
-### Compartir
+- **Historial:** `commit(label, recipe, { coalesce })`. Los cambios con la misma clave dentro de 1,5 s se fusionan en una entrada.
+- **Gestos de puntero:**
+  - crear, mover, redimensionar el inicio o el fin, y tocar;
+  - umbral de 4 px y captura del puntero;
+  - Escape restaura el estado; solo el gesto confirmado entra al historial.
+- **Pegar, duplicar y tocar en pantallas táctiles:** generan un candidato que se confirma (Enter) o se mueve con flechas.
 
-- Cada cambio relevante actualiza `localStorage`.
-- Abrir una URL vieja con `?s=...` debe reconstruir el horario, persistirlo localmente y limpiar la URL.
-- Compartir entre personas se resuelve con exportacion/importacion de JSON mientras no exista backend.
-- Si el estado no se puede parsear, la app vuelve al estado vacio por defecto.
+### Atajos
 
-### Exportacion
+| Acción | Atajo |
+| --- | --- |
+| Herramientas | `V` seleccionar · `B` colocar |
+| Edición | `Ctrl+Z` / `Ctrl+⇧Z` / `Ctrl+Y` · `Ctrl+C` / `Ctrl+V` · `Ctrl+D` · `Supr` |
+| Mover la clase | Flechas (`⇧` cambia la hora de fin, `Alt` la de inicio) |
+| Archivo | `Ctrl+S` · `Ctrl+O` · `Ctrl+⇧E` exportar |
+| Ajustes | `Ctrl+,` documento · `Ctrl+⇧A` apariencia |
+| Navegación | `Ctrl+K` comandos · `Ctrl+±` / `Ctrl+0` zoom · `?` lista de atajos |
 
-- El archivo exportado debe respetar:
-  - aspect ratio
-  - colores
-  - texto
-  - distribucion temporal
+## Convenciones de código
 
-## Patrones de implementacion
+- **Lógica pura:** el dominio y el motor no tocan React ni el DOM.
+- **React Compiler y fuentes:** el compilador memoiza por argumentos. Las funciones que dependen de fuentes cargadas reciben `fontsVersion` (de `useFontsVersion()`), aunque no lo usen; los parámetros con `_` no los marca el lint.
+- **Zustand:** los selectores no devuelven arrays ni objetos nuevos.
+- **CSS:** los CSS modules de Arc no tienen capa y le ganan a Tailwind. Para pisarlos se usa el modificador `!`.
+- **Opciones visuales nuevas:** van en `Appearance`, con su validación en `schema.ts` y su soporte en `layout.ts`. Así se persisten, viajan en los JSON y se exportan.
+- **Trabajo ajeno:** no se revierte sin instrucción explícita.
 
-- Mantener helpers puros para:
-  - normalizacion de horas
-  - serializacion
-  - calculo de timeline
-  - wrapping de texto SVG
-- Sanitizar siempre los bloques entrantes antes de renderizar.
-- Ordenar bloques por dia y hora para asegurar consistencia visual.
-- Evitar efectos secundarios fuera de:
-  - sincronizacion URL
-  - clipboard
-  - descarga de archivos
-  - localStorage
+## Pendientes conocidos
 
-## Convenciones de UI
-
-- Espanol en labels, botones y estados.
-- Estetica editorial/poster, no dashboard generico.
-- El preview es la pieza principal de producto.
-- El panel lateral es una herramienta de edicion, no el foco visual.
-
-## Convenciones para agentes
-
-- Antes de cambios grandes, revisar este archivo y respetar el alcance.
-- No cambiar el contrato de `AppState` sin actualizar este documento.
-- No reemplazar SVG por HTML/canvas sin una razon fuerte.
-- Si se agregan nuevas opciones visuales, deben ser persistibles y exportables en JSON.
-- No introducir dependencias pesadas para resolver problemas pequeños.
-- No revertir trabajo ajeno sin instruccion explicita.
-
-## Proximas mejoras candidatas
-
-- Duplicar bloques.
-- Reordenar bloques por drag and drop.
-- Soporte para sabado.
-- Paletas predefinidas por carrera.
-- Plantillas visuales intercambiables.
-- Import/export de JSON.
-- Backend minimo para slugs cortos compartibles.
-- Exportacion con mas resoluciones.
-- Tipografias embebidas para exportaciones mas consistentes.
-
-## Definicion de terminado para el MVP
-
-- Se puede editar un horario completo desde la UI.
-- La URL permanece limpia en uso normal.
-- El horario persiste localmente entre recargas.
-- Un JSON exportado reconstruye el mismo horario al importarse.
-- Se puede descargar al menos PNG y SVG.
-- La app funciona en desktop y mobile.
-- La UI esta completamente en espanol.
+- Faltan pruebas manuales en Safari y Firefox, con lectores de pantalla y en teléfonos físicos (la revisión se hizo en Chromium).
+- El catálogo de Google Fonts y las descargas dependen de la red. Las fuentes ya usadas quedan en caché local.
+- Hay piezas Arc preparadas que todavía no se usan (context menu, resizable panels, segmented control, slider, text morph).

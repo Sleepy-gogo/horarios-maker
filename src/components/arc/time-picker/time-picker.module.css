@@ -21,3 +21,5 @@
 .option[data-active="true"] { background: var(--surface-muted); }
 .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--foreground); }
 @media (prefers-reduced-motion: reduce) { .trigger, .chevron, .option { transition: none; } }
+.typed { font-variant-numeric: tabular-nums; color: var(--arc-accent); }
+.field { --time-menu-max: 250px; }
