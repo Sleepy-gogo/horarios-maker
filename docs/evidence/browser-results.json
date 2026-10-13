@@ -1,0 +1,533 @@
+{
+  "date": "2026-10-13T12:27:36.468Z",
+  "browser": "153.0.8010.12",
+  "isolatedContext": true,
+  "initialStorage": "{\"version\":1,\"settings\":{\"title\":\"Horario\",\"subtitle\":\"\",\"compactMode\":\"optimizado\",\"timeRangeMode\":\"automatico\",\"documentStartHour\":8,\"documentEndHour\":21,\"aspectRatio\":\"a4Vertical\",\"theme\":\"papel\",\"density\":\"normal\",\"uppercaseTitle\":true,\"showRoom\":true,\"showDetails\":true,\"showLegend\":true,\"showTimeLabels\":true},\"items\":[]}",
+  "findings": [
+    {
+      "id": "initial",
+      "title": "Horario Studio",
+      "fonts": [
+        {
+          "family": "Bebas Neue",
+          "status": "unloaded"
+        },
+        {
+          "family": "Bebas Neue",
+          "status": "loaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "DM Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "loaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        },
+        {
+          "family": "JetBrains Mono",
+          "status": "unloaded"
+        }
+      ],
+      "switches": [
+        {
+          "text": "",
+          "ariaLabel": null,
+          "labelledBy": null
+        },
+        {
+          "text": "",
+          "ariaLabel": null,
+          "labelledBy": null
+        },
+        {
+          "text": "",
+          "ariaLabel": null,
+          "labelledBy": null
+        },
+        {
+          "text": "",
+          "ariaLabel": null,
+          "labelledBy": null
+        },
+        {
+          "text": "",
+          "ariaLabel": null,
+          "labelledBy": null
+        }
+      ]
+    },
+    {
+      "id": "overlap",
+      "items": [
+        {
+          "id": "ab76ad0c-ae03-465c-b392-83f60418d675",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Análisis matemático",
+          "room": "305",
+          "details": "Teoría",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        },
+        {
+          "id": "1194f83b-63e8-46d8-8538-b8e0bc892869",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Nueva materia",
+          "room": "Aula",
+          "details": "Comision",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        }
+      ],
+      "rects": [
+        {
+          "x": "75",
+          "y": "140.9",
+          "width": "180",
+          "height": "56"
+        },
+        {
+          "x": "255",
+          "y": "140.9",
+          "width": "180",
+          "height": "56"
+        },
+        {
+          "x": "435",
+          "y": "140.9",
+          "width": "180",
+          "height": "56"
+        },
+        {
+          "x": "615",
+          "y": "140.9",
+          "width": "180",
+          "height": "56"
+        },
+        {
+          "x": "795",
+          "y": "140.9",
+          "width": "180",
+          "height": "56"
+        },
+        {
+          "x": "82",
+          "y": "199.9",
+          "width": "166",
+          "height": "179.8112582781457"
+        },
+        {
+          "x": "82",
+          "y": "199.9",
+          "width": "166",
+          "height": "179.8112582781457"
+        }
+      ]
+    },
+    {
+      "id": "canvas-keyboard",
+      "before": [
+        {
+          "id": "ab76ad0c-ae03-465c-b392-83f60418d675",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Análisis matemático",
+          "room": "305",
+          "details": "Teoría",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        },
+        {
+          "id": "1194f83b-63e8-46d8-8538-b8e0bc892869",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Nueva materia",
+          "room": "Aula",
+          "details": "Comision",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        }
+      ],
+      "afterDelete": [
+        {
+          "id": "ab76ad0c-ae03-465c-b392-83f60418d675",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Análisis matemático",
+          "room": "305",
+          "details": "Teoría",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        },
+        {
+          "id": "1194f83b-63e8-46d8-8538-b8e0bc892869",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Nueva materia",
+          "room": "Aula",
+          "details": "Comision",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        }
+      ],
+      "afterUndo": [
+        {
+          "id": "ab76ad0c-ae03-465c-b392-83f60418d675",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Análisis matemático",
+          "room": "305",
+          "details": "Comision",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        },
+        {
+          "id": "1194f83b-63e8-46d8-8538-b8e0bc892869",
+          "day": "Lunes",
+          "start": "08:00",
+          "end": "09:00",
+          "subject": "Nueva materia",
+          "room": "Aula",
+          "details": "Comision",
+          "color": "#d1fae5",
+          "textColor": "#0f172a"
+        }
+      ],
+      "activeElement": "INPUT"
+    },
+    {
+      "id": "clear-name",
+      "value": "Materia"
+    },
+    {
+      "id": "late-time",
+      "start": "23:59",
+      "end": "23:59"
+    },
+    {
+      "id": "export",
+      "width": 2000,
+      "height": 2828
+    },
+    {
+      "id": "font-payload",
+      "hasFontFace": false,
+      "hasEmbeddedFont": false,
+      "referencesBebas": true
+    },
+    {
+      "id": "raster-diff",
+      "pixels": 62271,
+      "total": 5656000,
+      "fraction": 0.011009724186704385,
+      "note": "Captura DOM SVG vs PNG descargado, misma geometría 2x; incluye diferencia de rasterización y tipografía."
+    },
+    {
+      "id": "mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "documentWidth": 390,
+      "bodyOverflow": "hidden",
+      "buttons": [
+        {
+          "name": "Reiniciar horario",
+          "rect": {
+            "x": 42.15625,
+            "y": 8.5,
+            "width": 34,
+            "height": 26,
+            "top": 8.5,
+            "right": 76.15625,
+            "bottom": 34.5,
+            "left": 42.15625
+          }
+        },
+        {
+          "name": "Importar JSON",
+          "rect": {
+            "x": 80.15625,
+            "y": 8.5,
+            "width": 98.421875,
+            "height": 26,
+            "top": 8.5,
+            "right": 178.578125,
+            "bottom": 34.5,
+            "left": 80.15625
+          }
+        },
+        {
+          "name": "Exportar JSON",
+          "rect": {
+            "x": 182.578125,
+            "y": 8.5,
+            "width": 97.734375,
+            "height": 26,
+            "top": 8.5,
+            "right": 280.3125,
+            "bottom": 34.5,
+            "left": 182.578125
+          }
+        },
+        {
+          "name": "Descargar",
+          "rect": {
+            "x": 284.3125,
+            "y": 8.5,
+            "width": 95.6875,
+            "height": 26,
+            "top": 8.5,
+            "right": 380,
+            "bottom": 34.5,
+            "left": 284.3125
+          }
+        }
+      ],
+      "canvas": {
+        "x": 0,
+        "y": 466,
+        "width": 390,
+        "height": 378,
+        "top": 466,
+        "right": 390,
+        "bottom": 844,
+        "left": 0
+      },
+      "svg": {
+        "x": 86.796875,
+        "y": 502,
+        "width": 216.40625,
+        "height": 305.984375,
+        "top": 502,
+        "right": 303.203125,
+        "bottom": 807.984375,
+        "left": 86.796875
+      }
+    },
+    {
+      "id": "mobile-320",
+      "viewport": 320,
+      "documentWidth": 356,
+      "toolbarLeft": 18,
+      "toolbarRight": 355.84375,
+      "canvasBottom": 628,
+      "viewportHeight": 568
+    },
+    {
+      "id": "json-roundtrip",
+      "equal": true
+    },
+    {
+      "id": "delete-block",
+      "items": 1
+    },
+    {
+      "id": "empty-object-import",
+      "items": 0,
+      "status": "JSON importado"
+    },
+    {
+      "id": "long-title",
+      "title": {
+        "x": -1133.279296875,
+        "y": 10.3623046875,
+        "width": 3266.558837890625,
+        "height": 111.0572280883789
+      },
+      "viewBox": 1000
+    },
+    {
+      "id": "outside-range",
+      "rects": [
+        {
+          "x": null,
+          "y": null,
+          "height": "1414"
+        },
+        {
+          "x": "22",
+          "y": "22",
+          "height": "1370"
+        },
+        {
+          "x": "75",
+          "y": "140.9",
+          "height": "56"
+        },
+        {
+          "x": "255",
+          "y": "140.9",
+          "height": "56"
+        },
+        {
+          "x": "435",
+          "y": "140.9",
+          "height": "56"
+        },
+        {
+          "x": "615",
+          "y": "140.9",
+          "height": "56"
+        },
+        {
+          "x": "795",
+          "y": "140.9",
+          "height": "56"
+        },
+        {
+          "x": "75",
+          "y": "196.9",
+          "height": "1122.3"
+        },
+        {
+          "x": "82",
+          "y": "1322.2",
+          "height": "28"
+        }
+      ]
+    },
+    {
+      "id": "reset-undo",
+      "items": 0
+    },
+    {
+      "id": "bad-link",
+      "items": 0,
+      "status": "Horario cargado desde enlace",
+      "url": "http://127.0.0.1:5173/"
+    },
+    {
+      "id": "bad-import",
+      "errors": [
+        "Cannot read properties of undefined (reading 'blockRadius')"
+      ],
+      "rootText": ""
+    },
+    {
+      "id": "quota",
+      "errors": [
+        "Audit quota",
+        "Audit quota"
+      ],
+      "body": ""
+    }
+  ]
+}

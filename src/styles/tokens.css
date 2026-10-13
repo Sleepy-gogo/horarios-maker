@@ -1,0 +1,71 @@
+/* Shared studio and shadcn tokens. Arc reads aliases of these values. */
+:root {
+  --studio-font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --studio-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --studio-control-sm: 1.625rem;
+  --studio-control-md: 2rem;
+  --studio-control-lg: 2.5rem;
+  --studio-warning: #f59e0b;
+  /* ─── Studio chrome tokens ─────────────────────────── */
+  --chrome: var(--background);
+  --chrome-raised: var(--card);
+  --chrome-surface: var(--secondary);
+  --chrome-hover: var(--accent-surface);
+  --chrome-border: color-mix(in oklab, var(--foreground) 6%, transparent);
+  --chrome-border-strong: var(--border);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-tertiary: color-mix(in oklab, var(--foreground) 32%, transparent);
+  --accent: var(--primary);
+  --accent-muted: color-mix(in oklab, var(--primary) 15%, transparent);
+  --accent-glow: color-mix(in oklab, var(--primary) 30%, transparent);
+  --danger: var(--destructive);
+  --danger-muted: color-mix(in oklab, var(--destructive) 12%, transparent);
+  --success: #22c55e;
+  --canvas-bg: #0a0a0c;
+
+  /* ─── Shadcn tokens — dark-only ────────────────────── */
+  --background: #111113;
+  --foreground: #ededef;
+  --card: #1a1a1e;
+  --card-foreground: #ededef;
+  --popover: #1a1a1e;
+  --popover-foreground: #ededef;
+  --primary: #6366f1;
+  --primary-foreground: #fff;
+  --secondary: #222226;
+  --secondary-foreground: #ededef;
+  --muted: #222226;
+  --muted-foreground: rgba(237, 237, 239, 0.56);
+  --accent-surface: #2a2a2f;
+  --accent-foreground: #ededef;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #6366f1;
+  --destructive: #ef4444;
+  --radius: 0.45rem;
+
+  --chart-1: #6366f1;
+  --chart-2: #8b5cf6;
+  --chart-3: #a78bfa;
+  --chart-4: #c4b5fd;
+  --chart-5: #ddd6fe;
+  --sidebar: #1a1a1e;
+  --sidebar-foreground: #ededef;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #2a2a2f;
+  --sidebar-accent-foreground: #ededef;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-ring: #6366f1;
+
+  font-family: var(--studio-font-sans);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--chrome);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

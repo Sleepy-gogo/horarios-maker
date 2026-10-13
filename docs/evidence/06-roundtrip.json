@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "settings": {
+    "title": "Horario",
+    "subtitle": "",
+    "compactMode": "optimizado",
+    "timeRangeMode": "automatico",
+    "documentStartHour": 8,
+    "documentEndHour": 21,
+    "aspectRatio": "a4Vertical",
+    "theme": "papel",
+    "density": "normal",
+    "uppercaseTitle": true,
+    "showRoom": true,
+    "showDetails": true,
+    "showLegend": true,
+    "showTimeLabels": true
+  },
+  "items": [
+    {
+      "id": "ab76ad0c-ae03-465c-b392-83f60418d675",
+      "day": "Lunes",
+      "start": "08:00",
+      "end": "09:00",
+      "subject": "Análisis matemático",
+      "room": "305",
+      "details": "Teoría",
+      "color": "#d1fae5",
+      "textColor": "#0f172a"
+    },
+    {
+      "id": "1194f83b-63e8-46d8-8538-b8e0bc892869",
+      "day": "Lunes",
+      "start": "08:00",
+      "end": "09:00",
+      "subject": "Nueva materia",
+      "room": "Aula",
+      "details": "Comision",
+      "color": "#d1fae5",
+      "textColor": "#0f172a"
+    }
+  ]
+}

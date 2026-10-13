@@ -1,0 +1,2 @@
+/* Shared shadcn/studio bridge. Never load foundation.upstream.css globally. */
+@import "../../styles/arc-tokens.css";

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    {
+      "id": "dm-sans",
+      "family": "DM Sans",
+      "license": "OFL-1.1",
+      "licenseUrl": "/fonts/DM-Sans-OFL.txt",
+      "source": "https://github.com/google/fonts/tree/main/ofl/dmsans",
+      "faces": [
+        {
+          "url": "/fonts/DM-Sans-Variable.ttf",
+          "sha256": "8cd08d97e89c24d0aa92edd2f0f4c8ee6195eee9b7c9f154865a58b02f0c1c0d",
+          "style": "normal",
+          "weightRange": [
+            100,
+            1000
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/dmsans/DMSans%5Bopsz%2Cwght%5D.ttf"
+        }
+      ]
+    },
+    {
+      "id": "bebas-neue",
+      "family": "Bebas Neue",
+      "license": "OFL-1.1",
+      "licenseUrl": "/fonts/Bebas-Neue-OFL.txt",
+      "source": "https://github.com/google/fonts/tree/main/ofl/bebasneue",
+      "faces": [
+        {
+          "url": "/fonts/Bebas-Neue-Regular.ttf",
+          "sha256": "08e4623805102d819f58601e46e345648846075e363b2ceb23313c2d1c83ec73",
+          "style": "normal",
+          "weightRange": [
+            400,
+            400
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf"
+        }
+      ]
+    },
+    {
+      "id": "jetbrains-mono",
+      "family": "JetBrains Mono",
+      "license": "OFL-1.1",
+      "licenseUrl": "/fonts/JetBrains-Mono-OFL.txt",
+      "source": "https://github.com/google/fonts/tree/main/ofl/jetbrainsmono",
+      "faces": [
+        {
+          "url": "/fonts/JetBrains-Mono-Variable.ttf",
+          "sha256": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda",
+          "style": "normal",
+          "weightRange": [
+            100,
+            800
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf"
+        }
+      ]
+    },
+    {
+      "id": "inter",
+      "family": "Inter",
+      "license": "OFL-1.1",
+      "licenseUrl": "/fonts/Inter-OFL.txt",
+      "source": "https://github.com/google/fonts/tree/main/ofl/inter",
+      "faces": [
+        {
+          "url": "/fonts/Inter-Variable.ttf",
+          "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+          "style": "normal",
+          "weightRange": [
+            100,
+            900
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf"
+        }
+      ]
+    },
+    {
+      "id": "geist",
+      "family": "Geist",
+      "license": "OFL-1.1",
+      "licenseUrl": "/fonts/Geist-OFL.txt",
+      "source": "https://github.com/google/fonts/tree/main/ofl/geist",
+      "faces": [
+        {
+          "url": "/fonts/Geist-Variable.ttf",
+          "sha256": "73894e0448cae90a92b6c2f8732b7bb9acb7b94c418bff559dad4a18e1de9659",
+          "style": "normal",
+          "weightRange": [
+            100,
+            900
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/geist/Geist%5Bwght%5D.ttf"
+        }
+      ]
+    }
+  ]
+}

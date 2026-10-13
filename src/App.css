@@ -54,7 +54,7 @@
 }
 
 .toolbar-status {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--studio-font-mono);
   font-size: 0.68rem;
   font-weight: 500;
   color: var(--text-tertiary);
