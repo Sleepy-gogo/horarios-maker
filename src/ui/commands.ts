@@ -150,6 +150,7 @@ export function useMenus(): Menu[] {
         { type: "item", id: "settings", label: "Ajustes del documento…", shortcut: `${mod},`, disabled: !hasDoc, run: () => editor.openDialog("settings"), keywords: ["título", "tamaño", "días", "rango", "horas"] },
         { type: "item", id: "fit-range", label: "Ajustar rango a mis clases", disabled: !hasDoc, run: fitRangeToBlocks },
         { type: "separator" },
+        { type: "item", id: "compact-empty-hours", label: "Compactar horas vacías", checked: doc?.settings.compactEmptyHours, disabled: !hasDoc, run: () => commit("Cambiar compresión de horas vacías", (current) => ({ ...current, settings: { ...current.settings, compactEmptyHours: !current.settings.compactEmptyHours } })) },
         { type: "item", id: "show-legend", label: "Mostrar leyenda", checked: doc?.settings.show.legend, disabled: !hasDoc, run: () => toggleShow("legend", doc?.settings.show.legend ? "Ocultar leyenda" : "Mostrar leyenda") },
         { type: "item", id: "show-hours", label: "Mostrar horas de la grilla", checked: doc?.settings.show.hourLabels, disabled: !hasDoc, run: () => toggleShow("hourLabels", "Cambiar horas de la grilla") },
         { type: "item", id: "show-times", label: "Mostrar horario en cada bloque", checked: doc?.settings.show.blockTimes, disabled: !hasDoc, run: () => toggleShow("blockTimes", "Cambiar horario en bloques") },
