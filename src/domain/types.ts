@@ -29,6 +29,8 @@ export type DocumentSettings = {
   page: { preset: PagePreset; width: number; height: number }
   days: DayId[]
   range: { start: number; end: number }
+  /** Compress hours with no classes across the visible days. */
+  compactEmptyHours: boolean
   show: {
     subtitle: boolean
     room: boolean

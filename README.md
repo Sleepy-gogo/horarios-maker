@@ -11,6 +11,7 @@ Estudio en el navegador para armar, diseñar y exportar horarios de cursada sema
   - Cada gesto se puede cancelar con Escape y deja una sola entrada en el historial.
   - Todo tiene alternativa sin mouse: flechas, formulario y paleta de comandos.
 - **Historial.** Deshacer y rehacer con nombre, hasta 100 pasos. Los arrastres de color cuentan como un solo paso.
+- **Horas vacías.** En Documento → Ajustes, «Compactar horas vacías» reduce las horas sin clases en los días visibles y reparte ese espacio entre las horas ocupadas. Es opcional, se guarda por proyecto y también se aplica al SVG y PNG. La escala queda fija durante cada gesto de edición.
 - **Apariencia.**
   - Temas incluidos y temas propios persistentes, que se pueden importar y exportar.
   - Paletas de colores, tipografía por rol y fuentes de Google Fonts con manejo de errores.
@@ -36,6 +37,7 @@ bun install
 bun run dev      # servidor de desarrollo
 bun run build    # chequeo de tipos + build de producción en dist/
 bun run lint
+bun run test     # escala temporal, composición real y compatibilidad de archivos
 ```
 
 El build es estático: `dist/` se puede publicar en cualquier hosting de archivos.

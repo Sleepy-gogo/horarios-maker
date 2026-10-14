@@ -24,6 +24,7 @@ export function defaultSettings(): DocumentSettings {
     page: { preset: "a4-landscape", width: page.width, height: page.height },
     days: [...DEFAULT_DAYS],
     range: { ...DEFAULT_RANGE },
+    compactEmptyHours: false,
     show: { subtitle: true, room: true, kind: true, notes: false, blockTimes: true, hourLabels: true, legend: true },
   }
 }

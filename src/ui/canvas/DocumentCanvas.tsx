@@ -3,7 +3,7 @@ import { MIN_DURATION, STEP } from "@/domain/constants"
 import { clamp, formatRange, snapDown } from "@/domain/time"
 import type { Block, DayId, ScheduleDocument } from "@/domain/types"
 import type { Rendered } from "@/engine/render"
-import { dayAt, minuteToY, yToMinute, type Scene } from "@/engine/scene"
+import { dayAt, minuteToY, yToMinute, type Scene, type SceneGrid } from "@/engine/scene"
 import { cn } from "@/lib/utils"
 import { adjustEdge, describeBlock, fitInterval, moveCandidate, placeBlock, setBlockInterval } from "@/state/actions"
 import { durationFor, useEditor, type Interval } from "@/state/editor"
@@ -20,6 +20,9 @@ type Gesture = {
   subjectId: string
   block?: Block
   moved: boolean
+  grid: SceneGrid
+  zoom: number
+  origin: { left: number; top: number }
 }
 
 const THRESHOLD = 4
@@ -86,13 +89,37 @@ export function DocumentCanvas({ doc, rendered, zoom, describedBy }: { doc: Sche
 
   useEffect(() => () => setActiveGesture(null), [])
 
+  // Drafts do not change the document or its scale. External edits and viewport changes cancel the gesture.
+  useEffect(() => {
+    const cancel = () => {
+      const current = gesture.current
+      if (!current) return
+      gesture.current = null
+      setActiveGesture(null)
+      if (stageRef.current?.hasPointerCapture(current.pointerId)) stageRef.current.releasePointerCapture(current.pointerId)
+      useEditor.getState().set({ draft: null })
+    }
+    window.addEventListener("resize", cancel)
+    window.addEventListener("blur", cancel)
+    window.addEventListener("scroll", cancel, true)
+    return () => {
+      cancel()
+      window.removeEventListener("resize", cancel)
+      window.removeEventListener("blur", cancel)
+      window.removeEventListener("scroll", cancel, true)
+    }
+  }, [doc, scene, z])
+
   const toDoc = (event: { clientX: number; clientY: number }) => {
-    const rect = stageRef.current!.getBoundingClientRect()
-    return { x: (event.clientX - rect.left) / z, y: (event.clientY - rect.top) / z }
+    const current = gesture.current
+    const rect = current?.origin ?? stageRef.current!.getBoundingClientRect()
+    const scale = current?.zoom ?? z
+    return { x: (event.clientX - rect.left) / scale, y: (event.clientY - rect.top) / scale }
   }
 
   const pointAt = (event: { clientX: number; clientY: number }) => {
     const point = toDoc(event)
+    const grid = gesture.current?.grid ?? scene.grid
     const day = dayAt(grid, point.x)
     const minute = yToMinute(grid, point.y)
     const inside = !!day && minute >= grid.rangeStart && minute < grid.rangeEnd && point.y >= grid.bodyY
@@ -107,8 +134,9 @@ export function DocumentCanvas({ doc, rendered, zoom, describedBy }: { doc: Sche
     useEditor.getState().set({ draft: null })
   }
 
-  const begin = (event: ReactPointerEvent, next: Omit<Gesture, "pointerId" | "pointerType" | "clientX" | "clientY" | "moved">) => {
-    gesture.current = { ...next, pointerId: event.pointerId, pointerType: event.pointerType, clientX: event.clientX, clientY: event.clientY, moved: false }
+  const begin = (event: ReactPointerEvent, next: Omit<Gesture, "pointerId" | "pointerType" | "clientX" | "clientY" | "moved" | "grid" | "zoom" | "origin">) => {
+    const { left, top } = stageRef.current!.getBoundingClientRect()
+    gesture.current = { ...next, pointerId: event.pointerId, pointerType: event.pointerType, clientX: event.clientX, clientY: event.clientY, moved: false, grid, zoom: z, origin: { left, top } }
     setActiveGesture(finish)
     if (next.kind !== "tap" && next.kind !== "background") {
       try {
@@ -120,6 +148,7 @@ export function DocumentCanvas({ doc, rendered, zoom, describedBy }: { doc: Sche
   }
 
   const createInterval = (g: Gesture, minute: number): Interval => {
+    const grid = g.grid
     const day = g.downDay!
     const anchor = clamp(snapDown(g.downMinute), grid.rangeStart, grid.rangeEnd - STEP)
     if (!g.moved) {
@@ -131,6 +160,7 @@ export function DocumentCanvas({ doc, rendered, zoom, describedBy }: { doc: Sche
   }
 
   const editInterval = (g: Gesture, minute: number, day: DayId | null): Interval => {
+    const grid = g.grid
     const block = g.block!
     const delta = Math.round((minute - g.downMinute) / STEP) * STEP
     if (g.kind === "move") {

@@ -79,6 +79,7 @@ const settingsSchema = z.object({
   }),
   days: z.array(dayId).min(1).max(7),
   range: z.object({ start: minute, end: minute }),
+  compactEmptyHours: z.boolean().default(false),
   show: z.object({
     subtitle: z.boolean(), room: z.boolean(), kind: z.boolean(), notes: z.boolean(),
     blockTimes: z.boolean(), hourLabels: z.boolean(), legend: z.boolean(),

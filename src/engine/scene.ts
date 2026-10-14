@@ -1,5 +1,6 @@
 import type { DayId } from "@/domain/types"
 import type { PlacedGlyph } from "./text"
+import { timeSegmentAt, type TimeScaleSegment } from "./time-scale"
 
 export type Rect = { x: number; y: number; w: number; h: number }
 
@@ -33,6 +34,7 @@ export type SceneGrid = {
   columns: { day: DayId; x: number; w: number }[]
   rangeStart: number
   rangeEnd: number
+  timeScale: TimeScaleSegment[] | null
 }
 
 export type Scene = {
@@ -50,11 +52,26 @@ export type Scene = {
 }
 
 export function minuteToY(grid: SceneGrid, minute: number) {
+  if (grid.timeScale) {
+    const segment = timeSegmentAt(grid.timeScale, minute, "minute")
+    return grid.bodyY + segment.yStart + ((minute - segment.start) * (segment.yEnd - segment.yStart)) / (segment.end - segment.start)
+  }
   return grid.bodyY + ((minute - grid.rangeStart) * grid.bodyH) / (grid.rangeEnd - grid.rangeStart)
 }
 
 export function yToMinute(grid: SceneGrid, y: number) {
-  return grid.rangeStart + ((y - grid.bodyY) * (grid.rangeEnd - grid.rangeStart)) / grid.bodyH
+  if (grid.timeScale) {
+    const offset = y - grid.bodyY
+    const segment = timeSegmentAt(grid.timeScale, offset, "y")
+    return cleanMinute(segment.start + ((offset - segment.yStart) * (segment.end - segment.start)) / (segment.yEnd - segment.yStart))
+  }
+  return cleanMinute(grid.rangeStart + ((y - grid.bodyY) * (grid.rangeEnd - grid.rangeStart)) / grid.bodyH)
+}
+
+/** Floating-point noise at an exact grid boundary must not snap a click into the previous slot. */
+function cleanMinute(minute: number) {
+  const rounded = Math.round(minute)
+  return Math.abs(minute - rounded) < 1e-9 ? rounded : minute
 }
 
 /** Column under x, using the column's full width including the gap halves, or null outside the grid. */

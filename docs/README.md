@@ -34,6 +34,7 @@ Build y lint del proyecto pasan. Eso no detecta estas fallas de uso y representa
 | [Resumen visual](resumen-visual.html) | Prioridades, comparación gráfica, esquema del estudio y secuencia de entregas. |
 | [07 · Preparación y encargo para Opus](07-preparacion-y-encargo-opus.md) | Componentes, tokens, fuentes y dependencias preparados; instrucciones actualizadas para implementar con autonomía y revisión visual. |
 | [08 · Implementación v2](08-implementacion-v2.md) | Cobertura de cada pedido en el código, decisiones tomadas al implementar, revisión visual y pendientes. |
+| [09 · Horas vacías compactas](09-horas-compactas.md) | Opción por proyecto, escala compartida, gestos estables, pruebas de regresión y evidencia de exportación. |
 
 El documento 06 fija las decisiones integradas. El 01 explica el estado actual y las severidades de incidentes; el 02 describe comportamiento objetivo; el 03 traduce ese comportamiento a arquitectura. Las prioridades P0/P1 dentro de las especificaciones describen requisitos del nuevo producto, no sólo severidad de bugs existentes.
 

@@ -134,6 +134,7 @@ export function migrateLegacy(input: unknown): { document: ScheduleDocument; rep
   const settings = defaultSettings()
   settings.title = str(rawSettings.title, 120) || "Horario"
   settings.subtitle = str(rawSettings.subtitle, 160)
+  settings.compactEmptyHours = rawSettings.compactMode === "optimizado"
   const page = typeof rawSettings.aspectRatio === "string" ? LEGACY_PAGES[rawSettings.aspectRatio] : undefined
   const preset = page ?? "a4-portrait"
   const pageSize = PAGE_PRESETS[preset as Exclude<PagePreset, "custom">]

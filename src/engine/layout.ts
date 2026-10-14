@@ -6,6 +6,8 @@ import type { Appearance, Block, FontRef, ScheduleDocument, Subject, TextRole, T
 import type { ResolvedFont } from "@/fonts/service"
 import type { BlockBox, GlyphRun, Rect, Scene, SceneGrid, SceneIssue, SceneNode } from "./scene"
 import { ellipsize, verticalMetrics, wrapText, type WrappedText } from "./text"
+import { minuteToY } from "./scene"
+import { createTimeScale } from "./time-scale"
 
 export type FontResolver = (ref: FontRef) => { font: ResolvedFont; fallback: boolean }
 
@@ -316,8 +318,15 @@ export function layoutDocument(doc: ScheduleDocument, resolveFont: FontResolver)
   const columnGap = days.length > 1 ? gridStyle.columnGap : 0
   const columnW = (gridW - columnGap * (days.length - 1)) / days.length
   const columns = days.map((day, index) => ({ day, x: r2(gridX + index * (columnW + columnGap)), w: r2(columnW) }))
-  const grid: SceneGrid = { x: gridX, width: gridW, headerY, headerH, bodyY, bodyH, columns, rangeStart, rangeEnd }
-  const yOf = (minute: number) => bodyY + ((minute - rangeStart) * bodyH) / (rangeEnd - rangeStart)
+  const visibleDays = new Set(days)
+  const visibleBlocks = doc.blocks.filter((block) => visibleDays.has(block.day) && block.start >= rangeStart && block.end <= rangeEnd)
+  const shortestLabelInterval = hourMarks.length > 1 ? Math.min(...hourMarks.slice(1).map((minute, index) => minute - hourMarks[index]!)) : 60
+  const minHourHeight = settings.show.hourLabels ? (hourStyle.size * hourStyle.lineHeight + 4) * 60 / shortestLabelInterval : 0
+  const timeScale = settings.compactEmptyHours
+    ? createTimeScale(rangeStart, rangeEnd, bodyH, visibleBlocks, minHourHeight)
+    : null
+  const grid: SceneGrid = { x: gridX, width: gridW, headerY, headerH, bodyY, bodyH, columns, rangeStart, rangeEnd, timeScale }
+  const yOf = (minute: number) => minuteToY(grid, minute)
   const lineW = gridStyle.lineWidth
   const halfLine = mix(gridStyle.lineColor, gridStyle.bodyFill, 0.45)
 
@@ -402,7 +411,6 @@ export function layoutDocument(doc: ScheduleDocument, resolveFont: FontResolver)
 
   // Blocks
   const subjects = new Map(doc.subjects.map((subject) => [subject.id, subject]))
-  const visibleDays = new Set(days)
   const placeable: Block[] = []
   for (const block of doc.blocks) {
     if (!visibleDays.has(block.day) || block.start < rangeStart || block.end > rangeEnd) {

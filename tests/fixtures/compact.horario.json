@@ -1,0 +1,258 @@
+{
+  "format": "horario-studio/project",
+  "schemaVersion": 2,
+  "exportedAt": "2026-10-14T01:26:05.617Z",
+  "document": {
+    "schemaVersion": 2,
+    "id": "doc_09a5b9bc0549473e",
+    "createdAt": "2026-10-14T01:13:13.353Z",
+    "subjects": [
+      {
+        "id": "subject-a",
+        "name": "Ingeniería de Software",
+        "color": "#6366F1",
+        "textColor": "#FFFFFF"
+      },
+      {
+        "id": "subject-b",
+        "name": "Lenguajes de Programación y Compiladores",
+        "color": "#F43F5E",
+        "textColor": "#FFFFFF"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "class-a",
+        "subjectId": "subject-a",
+        "day": "tue",
+        "start": 600,
+        "end": 720,
+        "room": "Aula 24",
+        "kind": "Teórica",
+        "notes": ""
+      },
+      {
+        "id": "class-b",
+        "subjectId": "subject-b",
+        "day": "wed",
+        "start": 480,
+        "end": 600,
+        "room": "Aula 24",
+        "kind": "Teórica",
+        "notes": ""
+      },
+      {
+        "id": "class-c",
+        "subjectId": "subject-a",
+        "day": "mon",
+        "start": 840,
+        "end": 960,
+        "room": "Lab Gamma",
+        "kind": "Práctica",
+        "notes": ""
+      },
+      {
+        "id": "class-d",
+        "subjectId": "subject-b",
+        "day": "tue",
+        "start": 960,
+        "end": 1080,
+        "room": "Aula 25",
+        "kind": "Práctica",
+        "notes": ""
+      }
+    ],
+    "settings": {
+      "title": "Adaptive height verification",
+      "subtitle": "",
+      "page": {
+        "preset": "square",
+        "width": 1080,
+        "height": 1080
+      },
+      "days": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri"
+      ],
+      "range": {
+        "start": 480,
+        "end": 1260
+      },
+      "compactEmptyHours": true,
+      "show": {
+        "subtitle": false,
+        "room": true,
+        "kind": true,
+        "notes": false,
+        "blockTimes": true,
+        "hourLabels": true,
+        "legend": false
+      }
+    },
+    "appearance": {
+      "name": "Claro",
+      "page": {
+        "background": "#FFFFFF",
+        "backgroundEnd": null,
+        "margin": 44
+      },
+      "colors": {
+        "ink": "#18181B",
+        "muted": "#71717A",
+        "accent": "#3B82F6"
+      },
+      "sheet": {
+        "show": false,
+        "fill": "#FFFFFF",
+        "radius": 0,
+        "borderColor": "#FFFFFF",
+        "borderWidth": 0,
+        "padding": 28
+      },
+      "header": {
+        "align": "start",
+        "gap": 28
+      },
+      "grid": {
+        "headerFill": "#FFFFFF",
+        "bodyFill": "#FFFFFF",
+        "lineColor": "#ECECEF",
+        "lineWidth": 1,
+        "halfHourLines": false,
+        "stripes": false,
+        "stripeColor": "#FAFAFA",
+        "columnGap": 0,
+        "radius": 0,
+        "hourFormat": "HH:mm"
+      },
+      "blocks": {
+        "radius": 8,
+        "inset": 3,
+        "padding": 9,
+        "borderWidth": 0,
+        "borderColor": "auto",
+        "align": "start",
+        "style": "soft",
+        "showAccentBar": true
+      },
+      "legend": {
+        "title": "Materias",
+        "showTitle": false,
+        "style": "chips"
+      },
+      "decorations": {
+        "accentShapes": false
+      },
+      "type": {
+        "title": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 700,
+            "italic": false
+          },
+          "size": 56,
+          "letterSpacing": -0.03,
+          "uppercase": false,
+          "lineHeight": 1.05
+        },
+        "subtitle": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 400,
+            "italic": false
+          },
+          "size": 21,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.25
+        },
+        "day": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 600,
+            "italic": false
+          },
+          "size": 16,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.2
+        },
+        "hour": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 500,
+            "italic": false
+          },
+          "size": 13,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.2
+        },
+        "blockTitle": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 600,
+            "italic": false
+          },
+          "size": 16.5,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.12
+        },
+        "blockMeta": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 400,
+            "italic": false
+          },
+          "size": 13,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.2
+        },
+        "legend": {
+          "font": {
+            "source": "local",
+            "id": "geist",
+            "family": "Geist",
+            "weight": 500,
+            "italic": false
+          },
+          "size": 15,
+          "letterSpacing": 0,
+          "uppercase": false,
+          "lineHeight": 1.2
+        }
+      },
+      "palette": [
+        "#3B82F6",
+        "#F43F5E",
+        "#10B981",
+        "#F59E0B",
+        "#8B5CF6",
+        "#F97316",
+        "#06B6D4",
+        "#EC4899",
+        "#84CC16",
+        "#6366F1",
+        "#14B8A6",
+        "#EF4444"
+      ]
+    }
+  }
+}

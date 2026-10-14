@@ -53,6 +53,7 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
   const [custom, setCustom] = useState({ width: initial.page.width, height: initial.page.height })
   const [days, setDays] = useState<DayId[]>(initial.days)
   const [range, setRange] = useState(initial.range)
+  const [compactEmptyHours, setCompactEmptyHours] = useState(initial.compactEmptyHours)
   const [show, setShow] = useState(initial.show)
   const [themeId, setThemeId] = useState(() => {
     const preferred = prefs.defaultThemeId
@@ -71,7 +72,7 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
   const daysError = days.length ? null : "Elegí al menos un día."
   const blocked = !!rangeError || !!daysError || (excluded.length > 0 && !dropExcluded)
   const page = pageFromPreset(preset, custom)
-  const settings: DocumentSettings = { title: title.trim() || "Mi horario", subtitle: subtitle.trim(), page, days: days.length ? days : initial.days, range: rangeError ? initial.range : range, show }
+  const settings: DocumentSettings = { title: title.trim() || "Mi horario", subtitle: subtitle.trim(), page, days: days.length ? days : initial.days, range: rangeError ? initial.range : range, compactEmptyHours, show }
 
   const saved = themes.find((theme) => theme.id === themeId)
   const appearance: Appearance | undefined = mode === "new" ? (saved ? { ...saved.appearance, name: saved.name } : presetById(themeId)?.appearance) : doc?.appearance
@@ -184,6 +185,12 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
           <TimeField label="Hasta" end value={range.end} min={range.start + 60} onChange={(end) => setRange((current) => ({ ...current, end }))} />
         </div>
         {rangeError ? <p className="text-xs text-destructive">{rangeError}</p> : null}
+        <SwitchRow
+          label="Compactar horas vacías"
+          description="Reduce las franjas sin clases en ningún día para dar más espacio a las clases."
+          checked={compactEmptyHours}
+          onCheckedChange={setCompactEmptyHours}
+        />
       </section>
 
       {excluded.length ? (

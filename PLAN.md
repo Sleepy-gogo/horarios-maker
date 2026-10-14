@@ -31,6 +31,7 @@ La fuente de verdad es `src/domain/types.ts` y la validación está en `src/doma
   - `title`, `subtitle`;
   - `page` (preset o tamaño propio, de 320 a 4000 px);
   - `days` y `range` (rango visible de al menos una hora);
+  - `compactEmptyHours`, opcional al leer archivos v2 anteriores y desactivado por defecto;
   - `show` (qué textos se dibujan).
 - **`Appearance`:**
   - página, colores, hoja, encabezado, grilla, bloques, leyenda y decoraciones;
@@ -80,6 +81,7 @@ Se usa una base IndexedDB llamada `horario-studio`, versión 1, con cinco almace
 
 Detalles:
 
+- **Horas vacías:** `compactEmptyHours` activa una escala de segmentos horarios con peso 0,42 para franjas vacías y 1 para ocupadas. El peso vacío aumenta si lo necesitan las etiquetas. Vista, exportación y conversión inversa de punteros comparten la escala; cada gesto congela su geometría. El comportamiento y las pruebas están en `docs/09`.
 - **Superposiciones:** `assignLanes` reparte las clases superpuestas en carriles por día.
 - **Texto:** se mide con HarfBuzz, se corta en líneas y se trunca con elipsis; cuando no entra, deja un aviso.
 - **Contraste:** si el texto de una materia no llega a 4,5:1 sobre su fondo, se corrige automáticamente.
