@@ -2,12 +2,18 @@
 
 import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
+import { DismissableLayer, useDismissableLayerSurface } from "@radix-ui/react-dismissable-layer"
+import { useFocusScopeBranch } from "@radix-ui/react-focus-scope"
 
 import { cn } from "@/lib/utils"
 import { ChevronRightIcon, CheckIcon } from "lucide-react"
 
-function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+const CloseMenuContext = React.createContext<(() => void) | null>(null)
+
+function DropdownMenu({ actionsRef, ...props }: MenuPrimitive.Root.Props) {
+  const ownActions = React.useRef<MenuPrimitive.Root.Actions | null>(null)
+  const actions = actionsRef ?? ownActions
+  return <CloseMenuContext.Provider value={() => actions.current?.close()}><MenuPrimitive.Root data-slot="dropdown-menu" actionsRef={actions} {...props} /></CloseMenuContext.Provider>
 }
 
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
@@ -30,20 +36,30 @@ function DropdownMenuContent({
     MenuPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   >) {
+  // Base UI portals must join the enclosing Radix dialog's focus and dismissal boundaries.
+  const [surface, setSurface] = React.useState<HTMLDivElement | null>(null)
+  const registerSurface = useDismissableLayerSurface()
+  const closeMenu = React.useContext(CloseMenuContext)
+  useFocusScopeBranch(surface)
+  const attachSurface = React.useCallback((node: HTMLDivElement | null) => {
+    setSurface(node)
+    registerSurface(node)
+  }, [registerSurface])
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
-        className="isolate z-50 outline-none"
+        className="isolate z-(--layer-menu) outline-none"
         align={align}
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
       >
-        <MenuPrimitive.Popup
+        <DismissableLayer asChild onEscapeKeyDown={(event) => { event.preventDefault(); event.stopPropagation(); closeMenu?.() }}><MenuPrimitive.Popup
+          ref={attachSurface}
           data-slot="dropdown-menu-content"
-          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("pointer-events-auto max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95", className )}
           {...props}
-        />
+        /></DismissableLayer>
       </MenuPrimitive.Positioner>
     </MenuPrimitive.Portal>
   )
@@ -96,8 +112,10 @@ function DropdownMenuItem({
   )
 }
 
-function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
-  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />
+function DropdownMenuSub({ actionsRef, ...props }: MenuPrimitive.SubmenuRoot.Props) {
+  const ownActions = React.useRef<MenuPrimitive.Root.Actions | null>(null)
+  const actions = actionsRef ?? ownActions
+  return <CloseMenuContext.Provider value={() => actions.current?.close()}><MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" actionsRef={actions} {...props} /></CloseMenuContext.Provider>
 }
 
 function DropdownMenuSubTrigger({

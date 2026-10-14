@@ -11,7 +11,6 @@ import { createId, nowIso } from "@/domain/document"
 import { THEME_FORMAT, downloadJson, slugify } from "@/domain/files"
 import { THEME_PRESETS } from "@/domain/presets"
 import type { Appearance, SavedTheme, ScheduleDocument, TextRole } from "@/domain/types"
-import { useLayoutTier } from "@/hooks/use-media"
 import { useRendered } from "@/hooks/use-rendered"
 import { cn } from "@/lib/utils"
 import { useEditor } from "@/state/editor"
@@ -415,7 +414,6 @@ function AppearanceBody({ doc }: { doc: ScheduleDocument }) {
   const [tab, setTab] = useState<Tab>(() => dialogPayload<Tab>("tab") ?? "themes")
   const [recolor, setRecolor] = useState(false)
   const [autoSave] = useState(() => !!dialogPayload<boolean>("save"))
-  const phone = useLayoutTier() === "phone"
   const preview = recolor ? { ...doc, appearance: draft, subjects: doc.subjects.map((subject, index) => { const color = draft.palette[index % draft.palette.length]!; return { ...subject, color, textColor: readableText(color) } }) } : { ...doc, appearance: draft }
   const rendered = useRendered(preview, "pv")
   const changed = JSON.stringify(draft) !== JSON.stringify(doc.appearance)
@@ -437,7 +435,7 @@ function AppearanceBody({ doc }: { doc: ScheduleDocument }) {
 
   const controls = (
     <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
-      <TabsList aria-label="Secciones de apariencia" className={cn(!phone && "sticky top-0 z-10")}>
+      <TabsList aria-label="Secciones de apariencia" shellClassName="appearance-tabs">
         {TABS.map(([value, label]) => (
           <TabsTrigger key={value} value={value} className="min-w-0! px-2.5!">
             {label}
@@ -487,7 +485,7 @@ function AppearanceBody({ doc }: { doc: ScheduleDocument }) {
       }
       compactAside={
         // On phones the preview stays pinned above the controls, so every change is visible while scrolling.
-        <div className="sticky -top-1 z-20 -mx-[var(--dlg-px)] -mt-1 border-b border-border bg-canvas px-[var(--dlg-px)] py-3">
+        <div data-slot="appearance-preview" className="sticky -top-1 z-20 -mx-[var(--dlg-px)] -mt-1 border-b border-border bg-canvas px-[var(--dlg-px)] py-3">
           {rendered ? <Preview svg={rendered.svg} width={rendered.scene.width} height={rendered.scene.height} className="h-40" /> : <div className="h-40" />}
         </div>
       }

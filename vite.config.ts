@@ -17,6 +17,9 @@ export default defineConfig({
     exclude: ['harfbuzzjs'],
   },
   resolve: {
+    // Portaled Base UI controls register with Radix dialogs through these shared registries.
+    // Nested copies would create separate layer/focus stacks and let Escape dismiss the parent.
+    dedupe: ['@radix-ui/react-dismissable-layer', '@radix-ui/react-focus-scope'],
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
     },

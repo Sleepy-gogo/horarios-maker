@@ -18,7 +18,7 @@
 .trigger[data-state="open"] .chevron { transform: rotate(180deg); }
 .hint { color: var(--arc-text-muted); font-size: var(--text-xs); }
 /* Radix holds the animation until the menu is positioned, so it always grows from the trigger edge. */
-.content { --menu-y: -4px; box-sizing: border-box; z-index: 1000; width: var(--radix-select-trigger-width); min-width: max(var(--radix-select-trigger-width), 10rem); max-width: min(24rem, calc(100vw - 24px)); max-height: min(340px, var(--radix-select-content-available-height)); overflow: hidden; border: 1px solid var(--border); border-radius: calc(var(--radius-control) + 4px); padding: 4px; background: var(--surface-raised); color: var(--foreground); box-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 12px 32px rgb(0 0 0 / .16); transform-origin: var(--radix-select-content-transform-origin); animation: select-in var(--duration-standard) var(--ease-enter) both; }
+.content { --menu-y: -4px; box-sizing: border-box; z-index: var(--layer-popover); width: var(--radix-select-trigger-width); min-width: max(var(--radix-select-trigger-width), 10rem); max-width: min(24rem, calc(100vw - 24px)); max-height: min(340px, var(--radix-select-content-available-height)); overflow: hidden; border: 1px solid var(--border); border-radius: calc(var(--radius-control) + 4px); padding: 4px; background: var(--surface-raised); color: var(--foreground); box-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 12px 32px rgb(0 0 0 / .16); transform-origin: var(--radix-select-content-transform-origin); animation: select-in var(--duration-standard) var(--ease-enter) both; }
 .content[data-side="top"] { --menu-y: 4px; }
 .content[data-state="closed"] { animation: select-out var(--duration-instant) var(--ease-standard) both; }
 .viewport { padding: 0; }

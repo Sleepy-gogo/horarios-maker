@@ -4,6 +4,12 @@
  * shadcn's hover accent and its foreground.
  */
 :root {
+  /* Portaled controls sit above dialogs and sheets; tooltips sit above pickers. */
+  --layer-backdrop: 50;
+  --layer-modal: 51;
+  --layer-menu: 60;
+  --layer-popover: 80;
+  --layer-tooltip: 90;
 
   --surface: var(--card);
   --surface-raised: var(--popover);

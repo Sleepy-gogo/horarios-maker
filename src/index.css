@@ -209,6 +209,20 @@ summary {
   display: none;
 }
 
+/* A pinned preview and footer live outside the controls' scroll area, so neither can cover focused fields. */
+.dialog-sheet:has([data-slot="dialog-with-preview"]) [data-slot="sheet-body"] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialog-shell .appearance-tabs,
+.dialog-sheet .appearance-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
 /* Small uppercase-free section headings used across dialogs and panels. */
 .section-label {
   font-size: 0.8125rem;

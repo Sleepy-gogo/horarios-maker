@@ -8,8 +8,8 @@ export function Preview({ svg, width, height, className }: { svg: string; width:
   const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
   return (
     <div className={cn("relative min-h-0", className)}>
-      <div className="absolute inset-0 grid place-items-center">
-        <img src={src} alt="Vista previa del documento" className="max-h-full max-w-full rounded-[2px] shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_2px_6px_rgb(0_0_0/0.06),0_14px_40px_rgb(0_0_0/0.14)]" style={{ aspectRatio: `${width} / ${height}` }} />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <img src={src} alt="Vista previa del documento" className="min-h-0 min-w-0 max-h-full max-w-full rounded-[2px] shadow-[0_0_0_1px_rgb(0_0_0/0.04),0_2px_6px_rgb(0_0_0/0.06),0_14px_40px_rgb(0_0_0/0.14)]" style={{ aspectRatio: `${width} / ${height}` }} />
       </div>
     </div>
   )

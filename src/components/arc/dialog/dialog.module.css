@@ -1,8 +1,8 @@
-.overlay { position: fixed; inset: 0; z-index: 50; background: oklch(14% 0.005 285 / .36); }
+.overlay { position: fixed; inset: 0; z-index: var(--layer-backdrop); background: oklch(14% 0.005 285 / .36); }
 :global(.dark) .overlay { background: oklch(0% 0 0 / .56); }
 /* Centered with auto margins (like a native modal dialog) so transform stays free for the entrance spring. */
 /* A column: the header stays put, the body scrolls, and a footer inside the body sticks to its bottom edge. */
-.content { --dlg-px: var(--space-6); --dlg-pb: var(--space-6); position: fixed; z-index: 51; inset: 0; display: flex; flex-direction: column; width: min(calc(100vw - var(--space-8)), 440px); height: fit-content; max-height: calc(100vh - var(--space-8)); max-height: calc(100dvh - var(--space-8)); margin: auto; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-surface); background: var(--surface-raised); color: var(--foreground); box-shadow: 0 0 0 1px rgb(0 0 0 / .02), 0 2px 6px rgb(0 0 0 / .05), 0 24px 64px rgb(0 0 0 / .18); }
+.content { --dlg-px: var(--space-6); --dlg-pb: var(--space-6); position: fixed; z-index: var(--layer-modal); inset: 0; display: flex; flex-direction: column; width: min(calc(100vw - var(--space-8)), 440px); height: fit-content; max-height: calc(100vh - var(--space-8)); max-height: calc(100dvh - var(--space-8)); margin: auto; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-surface); background: var(--surface-raised); color: var(--foreground); box-shadow: 0 0 0 1px rgb(0 0 0 / .02), 0 2px 6px rgb(0 0 0 / .05), 0 24px 64px rgb(0 0 0 / .18); }
 :global(.dark) .content { box-shadow: 0 2px 6px rgb(0 0 0 / .3), 0 24px 64px rgb(0 0 0 / .5); }
 /* Motion animates both layers. Keyframes only run when DialogContent sits under a bare Radix root. */
 .keyframes.overlay[data-state="open"] { animation: overlay-in var(--duration-standard) var(--ease-enter) both; }

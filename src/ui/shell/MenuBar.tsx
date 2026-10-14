@@ -18,7 +18,7 @@ function Entries({ items }: { items: MenuEntry[] }) {
         if (entry.type === "submenu") {
           return (
             <DropdownMenuSub key={entry.id}>
-              <DropdownMenuSubTrigger>{entry.label}</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger className="pl-7">{entry.label}</DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="min-w-48">
                 <Entries items={entry.items} />
               </DropdownMenuSubContent>

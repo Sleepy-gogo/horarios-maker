@@ -15,7 +15,7 @@
 .chevron { flex: 0 0 auto; color: var(--arc-text-muted); transition: transform var(--duration-spring) var(--ease-spring); }
 .trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
 .description { font-size: var(--text-xs); }
-.menu { z-index: 80; box-sizing: border-box; width: var(--radix-popover-trigger-width); max-height: min(var(--time-menu-max, 250px), var(--radix-popover-content-available-height, 250px)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--radius-panel); padding: 5px; background: var(--surface-raised); color: var(--foreground); box-shadow: var(--shadow-floating); transform-origin: var(--radix-popover-content-transform-origin); outline: none; animation: time-menu-in var(--duration-fast) var(--ease-enter); }
+.menu { z-index: var(--layer-popover); box-sizing: border-box; width: var(--radix-popover-trigger-width); max-height: min(var(--time-menu-max, 250px), var(--radix-popover-content-available-height, 250px)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--radius-panel); padding: 5px; background: var(--surface-raised); color: var(--foreground); box-shadow: var(--shadow-floating); transform-origin: var(--radix-popover-content-transform-origin); outline: none; animation: time-menu-in var(--duration-fast) var(--ease-enter); }
 .menu[data-state="closed"] { pointer-events: none; animation: time-menu-out var(--duration-instant) var(--ease-standard); }
 @keyframes time-menu-in { from { opacity: 0; scale: .97; } to { opacity: 1; scale: 1; } }
 @keyframes time-menu-out { to { opacity: 0; scale: .98; } }

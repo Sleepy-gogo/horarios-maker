@@ -444,7 +444,7 @@ function Sheet({ title, description, detents = [.45, .92], initialDetent = 0, on
             </DialogPrimitive.Close>
           </div>
         </div>
-        <div ref={bodyRef} className={styles.body} onWheel={bodyWheel} onFocus={bodyFocus}>{children}</div>
+        <div ref={bodyRef} data-slot="sheet-body" className={styles.body} onWheel={bodyWheel} onFocus={bodyFocus}>{children}</div>
         <span className={styles.srOnly} role="status" aria-live="polite">{announcement}</span>
       </motion.div>
     </DialogPrimitive.Content>

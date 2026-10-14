@@ -57,11 +57,12 @@
 .separator { flex: none; align-self: center; width: 1px; height: calc(var(--fbg-h) * .5); margin-inline: 2px; border-radius: 1px; background: var(--fbg-rule); }
 .vertical .separator { width: calc(var(--fbg-h) * .5); height: 1px; margin: 2px 0; }
 
-.tip { display: inline-flex; align-items: baseline; gap: var(--space-3); white-space: nowrap; }
-.kbd { font: inherit; color: color-mix(in oklab, var(--background) 58%, var(--foreground)); font-variant-numeric: tabular-nums; }
+.tip { display: inline-flex; max-width: 100%; align-items: baseline; gap: var(--space-3); white-space: normal; }
+.tipLabel { min-width: 0; overflow-wrap: anywhere; }
+.kbd { flex: none; white-space: nowrap; font: inherit; color: color-mix(in oklab, var(--background) 58%, var(--foreground)); font-variant-numeric: tabular-nums; }
 
 /* Side tooltips for a column match the library tooltip, rising a few pixels away from the rail instead of up. */
-.sideTip { --tip-x: -3px; z-index: 90; max-width: 15rem; padding: var(--space-3) var(--space-4); border: 1px solid color-mix(in oklab, var(--background) 14%, var(--foreground)); border-radius: var(--radius-control); background: var(--foreground); color: var(--background); box-shadow: var(--shadow-raised); font-family: var(--arc-font-body); font-size: var(--text-sm); font-weight: 400; letter-spacing: var(--tracking-body); line-height: var(--leading-body); transform-origin: var(--radix-tooltip-content-transform-origin); transition: opacity var(--duration-fast) var(--ease-enter), transform var(--duration-fast) var(--ease-enter); }
+.sideTip { --tip-x: -3px; z-index: var(--layer-tooltip); max-width: min(15rem, calc(100vw - 24px)); white-space: normal; overflow-wrap: anywhere; padding: var(--space-3) var(--space-4); border: 1px solid color-mix(in oklab, var(--background) 14%, var(--foreground)); border-radius: var(--radius-control); background: var(--foreground); color: var(--background); box-shadow: var(--shadow-raised); font-family: var(--arc-font-body); font-size: var(--text-sm); font-weight: 400; letter-spacing: var(--tracking-body); line-height: var(--leading-body); transform-origin: var(--radix-tooltip-content-transform-origin); transition: opacity var(--duration-fast) var(--ease-enter), transform var(--duration-fast) var(--ease-enter); }
 .sideTip[data-side="left"] { --tip-x: 3px; }
 @starting-style {
   .sideTip[data-state$="-open"] { opacity: 0; transform: translateX(var(--tip-x)) scale(.97); }

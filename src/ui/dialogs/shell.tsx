@@ -81,6 +81,15 @@ export function SplitBody({ main, aside, compactAside, footer, mainWidth = "26re
       }
     : {}
   if (phone) {
+    if (compactAside) {
+      return (
+        <Root data-slot="dialog-with-preview" className="flex min-h-0 flex-1 flex-col" {...submit}>
+          <div className="shrink-0">{compactAside}</div>
+          <div data-slot="dialog-controls" className="min-h-0 flex-1 overflow-y-auto overscroll-contain pt-6 pb-6">{main}</div>
+          {footer}
+        </Root>
+      )
+    }
     return (
       <Root className="grid gap-6" {...submit}>
         {compactAside}
@@ -93,7 +102,7 @@ export function SplitBody({ main, aside, compactAside, footer, mainWidth = "26re
   return (
     <Root className="flex min-h-0 flex-1 flex-col" {...submit}>
       <div className="grid min-h-0 flex-1 border-t border-border" style={{ gridTemplateColumns: columns }}>
-        <div className={cn("min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-8", asideFirst && "order-2 border-l border-border")}>{main}</div>
+        <div data-slot="dialog-controls" className={cn("min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-8", asideFirst && "order-2 border-l border-border")}>{main}</div>
         <div className={cn("min-h-0", asideFirst ? "order-1" : "border-l border-border")}>{aside}</div>
       </div>
       {footer}

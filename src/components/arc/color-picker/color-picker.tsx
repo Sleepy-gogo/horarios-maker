@@ -1,5 +1,8 @@
 "use client";
-import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { DismissableLayer, useDismissableLayerSurface } from "@radix-ui/react-dismissable-layer";
+import { useFocusScopeBranch } from "@radix-ui/react-focus-scope";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { AnimatePresence, Reorder, animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import type { Transition } from "motion/react";
@@ -300,6 +303,10 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
     const swatches = swatchesProp ?? ownSwatches;
     const [open, setOpen] = useState(false);
     const [shown, setShown] = useState(false);
+    const [panelNode, setPanelNode] = useState<HTMLDivElement | null>(null);
+    const [position, setPosition] = useState({ left: 0, top: 0 });
+    const registerSurface = useDismissableLayerSurface();
+    useFocusScopeBranch(panelNode);
     const [kind, setKind] = useState<ColorFormat>(defaultFormat);
     const [draft, setDraft] = useState<string | null>(null);
     const [invalid, setInvalid] = useState(false);
@@ -314,6 +321,11 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
     const rootRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const panelRef = useRef<HTMLDivElement>(null);
+    const attachPanel = useCallback((node: HTMLDivElement | null) => {
+        panelRef.current = node;
+        setPanelNode(node);
+        registerSurface(node);
+    }, [registerSurface]);
     const areaThumb = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const swatchRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -353,12 +365,20 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
         const panel = panelRef.current, trigger = triggerRef.current;
         if (!panel || !trigger)
             return;
-        const measure = () => { size.W.set(panel.offsetWidth); size.H.set(panel.offsetHeight); size.w.set(trigger.offsetWidth); size.h.set(trigger.offsetHeight); };
+        const measure = () => {
+            size.W.set(panel.offsetWidth); size.H.set(panel.offsetHeight); size.w.set(trigger.offsetWidth); size.h.set(trigger.offsetHeight);
+            const rect = trigger.getBoundingClientRect();
+            const left = Math.max(16, Math.min(rect.left - 1, window.innerWidth - panel.offsetWidth - 16));
+            const top = Math.max(16, Math.min(rect.top - 1, window.innerHeight - panel.offsetHeight - 16));
+            setPosition(current => current.left === left && current.top === top ? current : { left, top });
+        };
         measure();
         const observer = new ResizeObserver(measure);
         observer.observe(panel);
-        return () => observer.disconnect();
-    }, [shown, size.W, size.H, size.w, size.h]);
+        window.addEventListener("resize", measure);
+        document.addEventListener("scroll", measure, true);
+        return () => { observer.disconnect(); window.removeEventListener("resize", measure); document.removeEventListener("scroll", measure, true); };
+    }, [shown, panelNode, size.W, size.H, size.w, size.h]);
     useEffect(() => {
         if (!shown)
             return;
@@ -381,7 +401,7 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
     useEffect(() => {
         if (open)
             requestAnimationFrame(() => areaThumb.current?.focus({ preventScroll: true }));
-    }, [open]);
+    }, [open, panelNode]);
     function show() { openNow.current = true; setShown(true); setOpen(true); }
     function hide(returnFocus = true) {
         openNow.current = false;
@@ -395,10 +415,12 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
         if (event instanceof KeyboardEvent) {
             if (event.key !== "Escape")
                 return;
-            hide(!!rootRef.current?.contains(document.activeElement));
+            event.preventDefault();
+            event.stopPropagation();
+            hide(!!rootRef.current?.contains(document.activeElement) || !!panelRef.current?.contains(document.activeElement));
             return;
         }
-        if (!rootRef.current?.contains(event.target as Node))
+        if (!rootRef.current?.contains(event.target as Node) && !panelRef.current?.contains(event.target as Node))
             hide(false);
     });
     useEffect(() => {
@@ -406,8 +428,8 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
             return;
         const listener = (event: Event) => dismiss(event);
         document.addEventListener("pointerdown", listener, true);
-        document.addEventListener("keydown", listener);
-        return () => { document.removeEventListener("pointerdown", listener, true); document.removeEventListener("keydown", listener); };
+        document.addEventListener("keydown", listener, true);
+        return () => { document.removeEventListener("pointerdown", listener, true); document.removeEventListener("keydown", listener, true); };
     }, [open]);
     // The saturation and brightness area.
     const areaX = useFollow(hsva.s, reduced, active === "area"), areaY = useFollow(1 - hsva.v, reduced, active === "area");
@@ -505,8 +527,8 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
       <span className={styles.triggerText}><span className={styles.name}>{label}</span><span className={styles.hex}>{hex}</span></span>
     </button>
 
-    {shown && <div className={styles.float} data-open={open || undefined}>
-      <motion.div ref={panelRef} id={`${uid}-panel`} role="dialog" aria-label={`Color: ${label}`} className={styles.panel} inert={!open} style={{ clipPath, opacity: fade }}>
+    {shown && createPortal(<div className={`${styles.root} ${styles.float}`} data-open={open || undefined} style={{ ...style, left: position.left, top: position.top }}>
+      <DismissableLayer asChild><motion.div ref={attachPanel} id={`${uid}-panel`} role="dialog" aria-label={`Color: ${label}`} className={styles.panel} inert={!open} style={{ clipPath, opacity: fade }}>
         <div className={styles.head}>
           <Chip color={css}/>
           <span className={styles.triggerText}><span className={styles.name}>{label}</span><span className={styles.hex}>{hex}</span></span>
@@ -586,8 +608,8 @@ export function ColorPicker({ value, defaultValue = "#2F6BFF", onValueChange, ba
             </Reorder.Group>
           </div>
         </motion.div>
-      </motion.div>
-    </div>}
+      </motion.div></DismissableLayer>
+    </div>, document.body)}
   </div>;
 }
 export default ColorPicker;

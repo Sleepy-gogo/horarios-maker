@@ -127,11 +127,11 @@ export function FontPicker({ label, value, onChange }: { label: string; value: F
               <ChevronDown className="size-3.5" aria-hidden="true" />
             </span>
           </PopoverTrigger>
-          <PopoverContent className="w-80 max-w-[calc(100vw-1.5rem)] p-0" align="start">
-            <div className="border-b border-border p-2">
+          <PopoverContent className="flex w-80 max-w-[calc(100vw-1.5rem)] flex-col p-0!" align="start">
+            <div className="shrink-0 border-b border-border p-2">
               <SearchField label="Buscar fuentes" value={query} onValueChange={setQuery} placeholder="Buscar entre +1500 fuentes" autoFocus />
             </div>
-            <div className="max-h-80 overflow-auto p-1" role="listbox" aria-label="Fuentes">
+            <div className="min-h-0 max-h-80 flex-auto overflow-auto p-1" role="listbox" aria-label="Fuentes">
               {locals.length ? <p className="px-2 pt-1.5 pb-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">Incluidas, sin conexión</p> : null}
               {locals.map((family) => (
                 <button key={family.id} type="button" role="option" aria-selected={value.source === "local" && value.id === family.id} className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:bg-accent focus-visible:outline-none" onClick={() => pickLocal(family.id)}>
