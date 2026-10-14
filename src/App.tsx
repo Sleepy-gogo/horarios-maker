@@ -1,12 +1,10 @@
 import { Suspense, lazy, useEffect } from "react"
-import { Library, Loader2, PanelLeftOpen, PanelRightOpen, SlidersHorizontal, SquarePlus, MousePointer2 } from "lucide-react"
+import { Loader2, PanelLeftOpen, PanelRightOpen } from "lucide-react"
 import { BottomSheet } from "@/components/arc/bottom-sheet/bottom-sheet"
-import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/sonner"
 import type { ScheduleDocument } from "@/domain/types"
 import { useLayoutTier } from "@/hooks/use-media"
 import { useUiTheme } from "@/hooks/use-ui-theme"
-import { cn } from "@/lib/utils"
 import { useEditor } from "@/state/editor"
 import { useAnnouncer } from "@/state/notices"
 import { useStudio } from "@/state/studio"
@@ -56,39 +54,6 @@ function Dialogs() {
   )
 }
 
-/** Bottom bar on phones and tablets: the panels live in sheets so the schedule keeps the whole width. */
-function MobileBar({ doc, phone }: { doc: ScheduleDocument; phone: boolean }) {
-  const selectedBlockId = useEditor((state) => state.selectedBlockId)
-  const focusedSubjectId = useEditor((state) => state.focusedSubjectId)
-  const tool = useEditor((state) => state.tool)
-  const armed = useEditor((state) => state.armedSubjectId)
-  const armedSubject = doc.subjects.find((subject) => subject.id === armed)
-  const editor = useEditor.getState()
-  const context = selectedBlockId ? "Editar clase" : focusedSubjectId ? "Editar materia" : "Documento"
-  return (
-    <nav className="flex h-14 shrink-0 items-center gap-1 border-t border-border bg-background px-2 pb-[env(safe-area-inset-bottom)]" aria-label="Paneles">
-      {phone ? (
-        <Button variant="ghost" className="h-11 flex-1 flex-col gap-0.5 text-[11px]" onClick={() => editor.set({ mobileSheet: "library" })}>
-          <Library /> Materias
-        </Button>
-      ) : null}
-      <Button
-        variant="ghost"
-        aria-pressed={tool === "place"}
-        disabled={!doc.subjects.length}
-        className={cn("h-11 flex-1 flex-col gap-0.5 text-[11px]", tool === "place" && "text-primary")}
-        onClick={() => (tool === "place" ? editor.set({ tool: "select", hover: null }) : editor.arm(armed ?? doc.subjects[0]?.id ?? null))}
-      >
-        {tool === "place" ? <SquarePlus /> : <MousePointer2 />}
-        <span className="max-w-28 truncate">{tool === "place" ? `Colocando ${armedSubject?.name ?? ""}` : "Seleccionar"}</span>
-      </Button>
-      <Button variant="ghost" className={cn("h-11 flex-1 flex-col gap-0.5 text-[11px]", selectedBlockId && "text-primary")} onClick={() => editor.set({ mobileSheet: "inspector" })}>
-        <SlidersHorizontal /> {context}
-      </Button>
-    </nav>
-  )
-}
-
 function Studio({ doc }: { doc: ScheduleDocument }) {
   const tier = useLayoutTier()
   const libraryOpen = useStudio((state) => state.prefs.libraryOpen)
@@ -125,7 +90,7 @@ function Studio({ doc }: { doc: ScheduleDocument }) {
             </IconButton>
           </div>
         ) : null}
-        <Workspace doc={doc} compact={phone} />
+        <Workspace doc={doc} />
         {showInspector ? (
           <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-background" aria-label="Propiedades">
             <Inspector doc={doc} className="flex-1" />
@@ -143,7 +108,6 @@ function Studio({ doc }: { doc: ScheduleDocument }) {
           </div>
         ) : null}
       </div>
-      {!desktop ? <MobileBar doc={doc} phone={phone} /> : null}
       {!desktop ? (
         <>
           <BottomSheet open={mobileSheet === "library"} onOpenChange={(open) => !open && closeSheet()} title="Materias y clases" detents={[0.6, 0.92]}>
@@ -188,7 +152,7 @@ export default function App() {
         <Welcome />
       )}
       <Dialogs />
-      <Toaster theme={theme} position="bottom-center" closeButton toastOptions={{ classNames: { toast: "cn-toast" } }} />
+      <Toaster theme={theme} position="bottom-center" offset={{ bottom: 76 }} mobileOffset={{ bottom: 84 }} closeButton toastOptions={{ classNames: { toast: "cn-toast" } }} />
       <LiveRegion />
     </>
   )

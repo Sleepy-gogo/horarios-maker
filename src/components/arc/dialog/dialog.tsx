@@ -21,6 +21,8 @@ export const DialogClose = DialogPrimitive.Close;
 export interface DialogContentProps extends ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
     title: string;
     description?: string;
+    /** Extra class for the scrolling body, such as a layout that manages its own scroll regions. */
+    bodyClassName?: string;
     children: ReactNode;
 }
 const fade: Transition = { duration: motionTokens.duration.instant };
@@ -34,7 +36,7 @@ function SwapText({ text }: {
     <motion.span key={text} className={styles.swap} initial={reduced ? false : { opacity: 0, y: "0.3em" }} animate={{ opacity: 1, y: 0 }} exit={reduced ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: "-0.3em", transition: { duration: motionTokens.duration.fast, ease: [...motionTokens.ease.standard] } }} transition={{ duration: motionTokens.duration.standard, ease: [...motionTokens.ease.enter] }}>{text}</motion.span>
   </AnimatePresence>;
 }
-export function DialogContent({ title, description, children, className, onPointerDownOutside, ...props }: DialogContentProps) {
+export function DialogContent({ title, description, bodyClassName, children, className, onPointerDownOutside, ...props }: DialogContentProps) {
     const open = useContext(OpenContext);
     const reduced = useReducedMotion();
     // When the open state last changed. Radix waits for the click before treating a press as outside, and a press on the trigger
@@ -49,7 +51,7 @@ export function DialogContent({ title, description, children, className, onPoint
     const classes = [styles.content, className].filter(Boolean).join(" ");
     const inner = <>
     <div className={styles.header}><div><DialogPrimitive.Title className={styles.title}><SwapText text={title}/></DialogPrimitive.Title>{description ? <DialogPrimitive.Description className={styles.description}><SwapText text={description}/></DialogPrimitive.Description> : null}</div><DialogPrimitive.Close className={styles.close} aria-label="Cerrar"><X size={16} strokeWidth={1.75} aria-hidden="true"/></DialogPrimitive.Close></div>
-    <div className={styles.body}>{children}</div>
+    <div className={[styles.body, bodyClassName].filter(Boolean).join(" ")} data-dialog-body="">{children}</div>
   </>;
     // Under a bare Radix root the open state is unknown here, so CSS keyframes keyed off data-state animate the layers instead.
     if (open === null)

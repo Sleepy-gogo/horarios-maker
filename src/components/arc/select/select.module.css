@@ -1,0 +1,39 @@
+.field { display: grid; gap: .375rem; min-width: 0; align-content: start; }
+.label { font-size: var(--text-sm); font-weight: 500; line-height: 1.25; }
+/* The trigger matches the studio inputs. Radix opens on pointerdown and measures this box, so it never scales: press feedback is color only. */
+.trigger { position: relative; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); width: 100%; height: var(--control-height-md); border: 1px solid var(--input); border-radius: var(--radius-control); padding: 0 var(--space-2) 0 .625rem; background: transparent; color: var(--foreground); font: inherit; font-size: var(--text-sm); text-align: left; cursor: pointer; outline: none; transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard); }
+.trigger[data-size="sm"] { height: var(--control-height-sm); font-size: var(--text-xs); }
+:global(.dark) .trigger { background: color-mix(in oklab, var(--input) 30%, transparent); }
+@media (hover: hover) and (pointer: fine) { .trigger:hover:not([data-disabled]) { background: color-mix(in oklab, var(--foreground) 4%, transparent); } }
+.trigger[data-state="open"] { border-color: var(--ring); }
+.trigger:focus-visible { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent); outline: none; }
+.trigger[data-disabled] { opacity: .5; cursor: not-allowed; }
+.valueText { display: grid; flex: 1; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.valueText > span { grid-area: 1 / 1; display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.valueLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.valueText > [data-placeholder] { color: var(--arc-text-muted); }
+.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.icon { display: inline-flex; flex: none; align-items: center; }
+.chevron { display: inline-flex; flex: 0 0 auto; color: var(--arc-text-muted); transition: transform var(--duration-standard) var(--ease-standard); }
+.trigger[data-state="open"] .chevron { transform: rotate(180deg); }
+.hint { color: var(--arc-text-muted); font-size: var(--text-xs); }
+/* Radix holds the animation until the menu is positioned, so it always grows from the trigger edge. */
+.content { --menu-y: -4px; box-sizing: border-box; z-index: 1000; width: var(--radix-select-trigger-width); min-width: max(var(--radix-select-trigger-width), 10rem); max-width: min(24rem, calc(100vw - 24px)); max-height: min(340px, var(--radix-select-content-available-height)); overflow: hidden; border: 1px solid var(--border); border-radius: calc(var(--radius-control) + 4px); padding: 4px; background: var(--surface-raised); color: var(--foreground); box-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 12px 32px rgb(0 0 0 / .16); transform-origin: var(--radix-select-content-transform-origin); animation: select-in var(--duration-standard) var(--ease-enter) both; }
+.content[data-side="top"] { --menu-y: 4px; }
+.content[data-state="closed"] { animation: select-out var(--duration-instant) var(--ease-standard) both; }
+.viewport { padding: 0; }
+.item { position: relative; display: flex; align-items: center; gap: var(--space-2); min-height: 32px; border-radius: calc(var(--radius-control) - 2px); padding: 0 30px 0 8px; color: var(--foreground); font-size: var(--text-sm); cursor: default; outline: none; user-select: none; }
+@media (pointer: coarse) { .item { min-height: 40px; } }
+.item[data-highlighted] { background: color-mix(in oklab, var(--foreground) 7%, transparent); }
+.item[data-disabled] { opacity: .45; }
+.item[data-state="checked"] { font-weight: 500; }
+.itemHint { margin-left: auto; padding-left: var(--space-3); color: var(--arc-text-muted); font-size: var(--text-xs); }
+.indicator { position: absolute; right: 8px; display: inline-flex; align-items: center; color: var(--arc-accent); }
+.groupLabel { padding: 8px 8px 4px; color: var(--arc-text-muted); font-size: 11px; font-weight: 500; letter-spacing: .01em; }
+.separator { height: 1px; margin: 4px -4px; background: var(--border); }
+.scrollButton { display: grid; height: 24px; place-items: center; color: var(--arc-text-muted); }
+@keyframes select-in { from { opacity: 0; transform: translateY(var(--menu-y)) scale(.98); } }
+@keyframes select-out { to { opacity: 0; transform: scale(.99); } }
+@media (prefers-reduced-motion: reduce) { .trigger, .chevron { transition: none; } .content { animation-name: select-fade; } .content[data-state="closed"] { animation-name: select-fade-out; } }
+@keyframes select-fade { from { opacity: 0; } }
+@keyframes select-fade-out { to { opacity: 0; } }

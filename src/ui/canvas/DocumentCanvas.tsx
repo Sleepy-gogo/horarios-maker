@@ -51,10 +51,10 @@ function Ghost({ rect, color, label, detail, tone }: { rect: { left: number; top
       }}
     >
       <div
-        className={cn("absolute left-1 flex max-w-[calc(100%-0.5rem)] min-w-max flex-col rounded bg-[var(--popover)] px-1.5 py-0.5 text-[11px] leading-tight text-popover-foreground shadow-sm ring-1 ring-border", short ? "-top-1 -translate-y-full" : "top-1")}
+        className={cn("absolute left-1 flex max-w-[calc(100%-0.5rem)] min-w-0 flex-col rounded bg-[var(--popover)] px-1.5 py-0.5 text-[11px] leading-tight text-popover-foreground shadow-sm ring-1 ring-border", short ? "-top-1 -translate-y-full" : "top-1")}
       >
-        <span className="font-semibold tabular-nums">{label}</span>
-        {detail ? <span className="text-muted-foreground">{detail}</span> : null}
+        <span className="truncate font-semibold tabular-nums">{label}</span>
+        {detail ? <span className="truncate text-muted-foreground">{detail}</span> : null}
       </div>
     </div>
   )

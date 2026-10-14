@@ -15,11 +15,14 @@
 .chevron { flex: 0 0 auto; color: var(--arc-text-muted); transition: transform var(--duration-spring) var(--ease-spring); }
 .trigger[aria-expanded="true"] .chevron { transform: rotate(180deg); }
 .description { font-size: var(--text-xs); }
-.menu { position: absolute; z-index: 80; top: calc(100% + 6px); right: 0; left: 0; max-height: 250px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--radius-panel); padding: 5px; background: var(--surface-raised); box-shadow: var(--shadow-floating); transform-origin: top center; will-change: transform, opacity; }
+.menu { z-index: 80; box-sizing: border-box; width: var(--radix-popover-trigger-width); max-height: min(var(--time-menu-max, 250px), var(--radix-popover-content-available-height, 250px)); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--border); border-radius: var(--radius-panel); padding: 5px; background: var(--surface-raised); color: var(--foreground); box-shadow: var(--shadow-floating); transform-origin: var(--radix-popover-content-transform-origin); outline: none; animation: time-menu-in var(--duration-fast) var(--ease-enter); }
+.menu[data-state="closed"] { pointer-events: none; animation: time-menu-out var(--duration-instant) var(--ease-standard); }
+@keyframes time-menu-in { from { opacity: 0; scale: .97; } to { opacity: 1; scale: 1; } }
+@keyframes time-menu-out { to { opacity: 0; scale: .98; } }
 /* Arrow keys move the highlight often, so it changes almost instantly. The dot marks the chosen time, so only one row is ever highlighted. */
 .option { display: flex; width: 100%; min-height: 36px; align-items: center; justify-content: space-between; border: 0; border-radius: calc(var(--radius-panel) - 5px); padding: 0 12px; background: transparent; color: var(--foreground); font: inherit; font-size: var(--text-sm); font-variant-numeric: tabular-nums; text-align: left; cursor: pointer; transition: background-color 80ms var(--ease-standard); }
 .option[data-active="true"] { background: var(--surface-muted); }
 .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--foreground); }
-@media (prefers-reduced-motion: reduce) { .trigger, .chevron, .option { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .trigger, .chevron, .option { transition: none; } .menu { animation: none; } }
 .typed { font-variant-numeric: tabular-nums; color: var(--arc-accent); }
 .field { --time-menu-max: 250px; }

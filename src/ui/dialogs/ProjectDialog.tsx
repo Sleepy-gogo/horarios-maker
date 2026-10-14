@@ -2,24 +2,32 @@ import { useState } from "react"
 import { AlertTriangle } from "lucide-react"
 import { Checkbox } from "@/components/arc/checkbox/checkbox"
 import { NumberField } from "@/components/arc/number-field/number-field"
-import { RadioCards } from "@/components/arc/radio-cards/radio-cards"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DAYS, PAGE_LIMITS, PAGE_PRESETS, TEXT_LIMITS, sortDays } from "@/domain/constants"
 import { defaultSettings, deleteBlocks, excludedBlocks, expandRange, pageFromPreset, withSettings } from "@/domain/document"
 import { THEME_PRESETS, presetById } from "@/domain/presets"
 import { formatMinutes } from "@/domain/time"
-import type { DayId, DocumentSettings, PagePreset } from "@/domain/types"
+import type { Appearance, DayId, DocumentSettings, PagePreset } from "@/domain/types"
+import { useRendered } from "@/hooks/use-rendered"
 import { describeBlock } from "@/state/actions"
 import { useEditor } from "@/state/editor"
 import { commit, useStudio } from "@/state/studio"
-import { Field, NativeSelect, SectionTitle, SwitchRow, TimeField } from "../common"
+import { ChoiceTiles, DayChips, Field, SectionTitle, SwitchRow, TimeField } from "../common"
 import { useFieldId } from "../platform"
-import { DialogFooter, DialogShell } from "./shell"
+import { PreviewPane } from "./Preview"
+import { sampleDocument } from "./sample"
+import { DialogFooter, DialogShell, FooterNote, SplitBody } from "./shell"
+import { ThemeSwatch } from "./ThemeSwatch"
 
-function PageIcon({ width, height }: { width: number; height: number }) {
-  const scale = 22 / Math.max(width, height)
-  return <span aria-hidden="true" className="inline-block rounded-[3px] border-[1.5px] border-current opacity-70" style={{ width: Math.max(8, width * scale), height: Math.max(8, height * scale) }} />
+/** The page's proportion, drawn on a quiet stage so formats compare at a glance. */
+function PageShape({ width, height }: { width: number; height: number }) {
+  const scale = 34 / Math.max(width, height)
+  return (
+    <span aria-hidden="true" className="grid h-14 place-items-center bg-muted/60">
+      <span className="rounded-[3px] border border-foreground/20 bg-card shadow-[0_1px_2px_rgb(0_0_0/0.08)]" style={{ width: Math.max(10, width * scale), height: Math.max(10, height * scale) }} />
+    </span>
+  )
 }
 
 const SHOW_LABELS: [keyof DocumentSettings["show"], string][] = [
@@ -31,6 +39,8 @@ const SHOW_LABELS: [keyof DocumentSettings["show"], string][] = [
   ["kind", "Tipo de clase"],
   ["notes", "Notas"],
 ]
+
+const WEEKDAYS: DayId[] = ["mon", "tue", "wed", "thu", "fri"]
 
 function ProjectForm({ mode }: { mode: "new" | "settings" }) {
   const doc = useStudio((state) => state.session?.doc)
@@ -44,11 +54,14 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
   const [days, setDays] = useState<DayId[]>(initial.days)
   const [range, setRange] = useState(initial.range)
   const [show, setShow] = useState(initial.show)
-  const [themeId, setThemeId] = useState(prefs.defaultThemeId ?? "papel")
+  const [themeId, setThemeId] = useState(() => {
+    const preferred = prefs.defaultThemeId
+    if (preferred && (themes.some((theme) => theme.id === preferred) || presetById(preferred))) return presetById(preferred)?.id ?? preferred
+    return THEME_PRESETS[0]!.id
+  })
   const [dropExcluded, setDropExcluded] = useState(false)
   const titleId = useFieldId("title")
   const subtitleId = useFieldId("subtitle")
-  const themeField = useFieldId("theme")
 
   const excluded = mode === "settings" && doc ? excludedBlocks(doc.blocks, days, range) : []
   const missingDays = sortDays([...new Set(excluded.filter((block) => !days.includes(block.day)).map((block) => block.day))])
@@ -58,15 +71,16 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
   const daysError = days.length ? null : "Elegí al menos un día."
   const blocked = !!rangeError || !!daysError || (excluded.length > 0 && !dropExcluded)
   const page = pageFromPreset(preset, custom)
+  const settings: DocumentSettings = { title: title.trim() || "Mi horario", subtitle: subtitle.trim(), page, days: days.length ? days : initial.days, range: rangeError ? initial.range : range, show }
 
-  const toggleDay = (day: DayId, on: boolean) => setDays((current) => sortDays(on ? [...new Set([...current, day])] : current.filter((item) => item !== day)))
+  const saved = themes.find((theme) => theme.id === themeId)
+  const appearance: Appearance | undefined = mode === "new" ? (saved ? { ...saved.appearance, name: saved.name } : presetById(themeId)?.appearance) : doc?.appearance
+  const previewDoc = mode === "new" ? (appearance ? sampleDocument(settings, appearance) : null) : doc ? withSettings(doc, settings) : null
+  const rendered = useRendered(previewDoc, "pj")
 
   const submit = async () => {
     if (blocked) return
-    const settings: DocumentSettings = { title: title.trim() || "Mi horario", subtitle: subtitle.trim(), page, days, range, show }
     if (mode === "new") {
-      const saved = themes.find((theme) => theme.id === themeId)
-      const appearance = saved ? { ...saved.appearance, name: saved.name } : presetById(themeId)?.appearance
       useEditor.getState().closeDialog()
       await useStudio.getState().newProject(settings, appearance)
       return
@@ -83,38 +97,58 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
     useEditor.getState().closeDialog()
   }
 
-  return (
-    <form
-      className="grid gap-6"
-      onSubmit={(event) => {
-        event.preventDefault()
-        void submit()
-      }}
-    >
-      <div className="grid gap-3 sm:grid-cols-2">
+  const sameDays = (list: DayId[]) => list.length === days.length && list.every((day) => days.includes(day))
+  const dayPresets: [string, DayId[]][] = [
+    ["Lun a vie", WEEKDAYS],
+    ["Lun a sáb", [...WEEKDAYS, "sat"]],
+    ["Todos", DAYS.map((day) => day.id)],
+  ]
+
+  const main = (
+    <div className="grid gap-7">
+      <div className="grid gap-3">
         <Field label="Título" htmlFor={titleId}>
-          <Input id={titleId} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Mi horario" maxLength={TEXT_LIMITS.title} autoFocus={mode === "new"} />
+          <Input id={titleId} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Mi horario" maxLength={TEXT_LIMITS.title} autoFocus={mode === "new"} className="h-10 text-base font-medium md:text-base" />
         </Field>
         <Field label="Subtítulo" htmlFor={subtitleId} hint="Opcional: cuatrimestre, curso, nombre…">
           <Input id={subtitleId} value={subtitle} onChange={(event) => setSubtitle(event.target.value)} placeholder="1.er cuatrimestre 2026" maxLength={TEXT_LIMITS.subtitle} />
         </Field>
       </div>
 
-      <section className="grid gap-2">
-        <SectionTitle>Tamaño</SectionTitle>
-        <RadioCards
-          aria-label="Tamaño del documento"
-          minColumnWidth={150}
+      {mode === "new" ? (
+        <section className="grid gap-2.5">
+          <SectionTitle description="Colores y fuentes; podés ajustarlos después.">Tema</SectionTitle>
+          <ChoiceTiles
+            label="Tema"
+            size="sm"
+            className="grid-cols-2 sm:grid-cols-3"
+            value={themeId}
+            onChange={setThemeId}
+            options={[
+              ...THEME_PRESETS.map((item) => ({ value: item.id, label: item.appearance.name, visual: <ThemeSwatch appearance={item.appearance} className="h-16" /> })),
+              ...themes.map((theme) => ({ value: theme.id, label: theme.name, meta: "Mi tema", visual: <ThemeSwatch appearance={theme.appearance} className="h-16" /> })),
+            ]}
+          />
+        </section>
+      ) : null}
+
+      <section className="grid gap-2.5">
+        <SectionTitle>Formato</SectionTitle>
+        <ChoiceTiles
+          label="Formato del documento"
+          size="sm"
+          indicator={false}
+          className="grid-cols-3"
           value={preset}
-          onValueChange={(value) => setPreset(value as PagePreset)}
+          onChange={(value) => setPreset(value as PagePreset)}
           options={[
             ...(Object.entries(PAGE_PRESETS) as [Exclude<PagePreset, "custom">, (typeof PAGE_PRESETS)[keyof typeof PAGE_PRESETS]][]).map(([id, item]) => ({
               value: id,
               label: item.label,
-              meta: `${item.width} × ${item.height}`,
-              icon: <PageIcon width={item.width} height={item.height} />,
+              meta: item.ratio,
+              visual: <PageShape width={item.width} height={item.height} />,
             })),
-            { value: "custom", label: "Personalizado", meta: `${custom.width} × ${custom.height}`, icon: <PageIcon width={custom.width} height={custom.height} /> },
+            { value: "custom", label: "A medida", meta: `${custom.width} × ${custom.height}`, visual: <PageShape width={custom.width} height={custom.height} /> },
           ]}
         />
         {preset === "custom" ? (
@@ -125,33 +159,25 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
         ) : null}
       </section>
 
-      <section className="grid gap-2">
+      <section className="grid gap-2.5">
         <SectionTitle
           action={
-            <div className="flex gap-1">
-              <Button type="button" size="xs" variant="ghost" onClick={() => setDays(["mon", "tue", "wed", "thu", "fri"])}>
-                Lun a vie
-              </Button>
-              <Button type="button" size="xs" variant="ghost" onClick={() => setDays(["mon", "tue", "wed", "thu", "fri", "sat"])}>
-                Lun a sáb
-              </Button>
-              <Button type="button" size="xs" variant="ghost" onClick={() => setDays(DAYS.map((day) => day.id))}>
-                Todos
-              </Button>
+            <div className="flex gap-0.5">
+              {dayPresets.map(([label, list]) => (
+                <Button key={label} type="button" size="xs" variant="ghost" aria-pressed={sameDays(list)} className="text-muted-foreground aria-pressed:text-foreground" onClick={() => setDays(list)}>
+                  {label}
+                </Button>
+              ))}
             </div>
           }
         >
           Días
         </SectionTitle>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4" role="group" aria-label="Días visibles">
-          {DAYS.map((day) => (
-            <Checkbox key={day.id} label={day.label} checked={days.includes(day.id)} onCheckedChange={(value) => toggleDay(day.id, value === true)} />
-          ))}
-        </div>
+        <DayChips multiple label="Días visibles" value={days} onChange={(next) => setDays(sortDays(next))} />
         {daysError ? <p className="text-xs text-destructive">{daysError}</p> : null}
       </section>
 
-      <section className="grid gap-2">
+      <section className="grid gap-2.5">
         <SectionTitle>Horario visible</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
           <TimeField label="Desde" value={range.start} max={range.end - 60} onChange={(start) => setRange((current) => ({ ...current, start }))} />
@@ -161,18 +187,18 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
       </section>
 
       {excluded.length ? (
-        <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm" role="alert">
-          <p className="flex items-center gap-1.5 font-medium">
+        <div className="grid gap-2 rounded-xl border border-warning/40 bg-warning/8 p-3.5 text-sm" role="alert">
+          <p className="flex items-center gap-2 font-medium">
             <AlertTriangle className="size-4 shrink-0 text-warning" aria-hidden="true" />
             {excluded.length === 1 ? "1 clase quedaría fuera del documento" : `${excluded.length} clases quedarían fuera del documento`}
           </p>
-          <ul className="mt-1.5 list-disc pl-5 text-xs text-muted-foreground">
-            {excluded.slice(0, 5).map((block) => (
+          <ul className="grid gap-0.5 pl-6 text-xs text-muted-foreground">
+            {excluded.slice(0, 4).map((block) => (
               <li key={block.id}>{doc ? describeBlock(doc, block) : null}</li>
             ))}
-            {excluded.length > 5 ? <li>y {excluded.length - 5} más</li> : null}
+            {excluded.length > 4 ? <li>y {excluded.length - 4} más</li> : null}
           </ul>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 pl-6">
             {outOfRange.length ? (
               <Button type="button" size="xs" variant="outline" onClick={() => setRange(expanded)}>
                 Ampliar a {formatMinutes(expanded.start)}–{formatMinutes(expanded.end)}
@@ -184,62 +210,51 @@ function ProjectForm({ mode }: { mode: "new" | "settings" }) {
               </Button>
             ) : null}
           </div>
-          <div className="mt-3">
+          <div className="pl-6">
             <Checkbox label={excluded.length === 1 ? "Eliminar esa clase al guardar" : `Eliminar esas ${excluded.length} clases al guardar`} checked={dropExcluded} onCheckedChange={(value) => setDropExcluded(value === true)} />
           </div>
         </div>
       ) : null}
 
-      {mode === "new" ? (
-        <Field label="Tema" htmlFor={themeField} hint="Podés cambiar colores y fuentes en cualquier momento.">
-          <NativeSelect id={themeField} value={themeId} onChange={(event) => setThemeId(event.target.value)}>
-            <optgroup label="Temas incluidos">
-              {THEME_PRESETS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.appearance.name}
-                </option>
-              ))}
-            </optgroup>
-            {themes.length ? (
-              <optgroup label="Mis temas">
-                {themes.map((theme) => (
-                  <option key={theme.id} value={theme.id}>
-                    {theme.name}
-                  </option>
-                ))}
-              </optgroup>
-            ) : null}
-          </NativeSelect>
-        </Field>
-      ) : (
+      {mode === "settings" ? (
         <section className="grid gap-1">
           <SectionTitle>Mostrar en el documento</SectionTitle>
-          <div className="grid gap-x-6 sm:grid-cols-2">
+          <div className="grid gap-x-6">
             {SHOW_LABELS.map(([key, label]) => (
               <SwitchRow key={key} label={label} checked={show[key]} onCheckedChange={(value) => setShow((current) => ({ ...current, [key]: value }))} />
             ))}
           </div>
         </section>
-      )}
+      ) : null}
+    </div>
+  )
 
-      <DialogFooter>
-        <span className="mr-auto text-xs text-muted-foreground tabular-nums">
-          {page.width} × {page.height} px
-        </span>
-        <Button type="button" variant="ghost" onClick={() => useEditor.getState().closeDialog()}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={blocked}>
-          {mode === "new" ? "Crear proyecto" : "Guardar cambios"}
-        </Button>
-      </DialogFooter>
-    </form>
+  return (
+    <SplitBody
+      onSubmit={() => void submit()}
+      mainWidth="25rem"
+      main={main}
+      aside={<PreviewPane rendered={rendered} caption={mode === "new" ? "Vista de ejemplo, con materias de muestra." : "Así va a quedar tu documento."} />}
+      footer={
+        <DialogFooter>
+          <FooterNote>
+            {page.width} × {page.height} px
+          </FooterNote>
+          <Button type="button" variant="ghost" onClick={() => useEditor.getState().closeDialog()}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={blocked}>
+            {mode === "new" ? "Crear proyecto" : "Guardar cambios"}
+          </Button>
+        </DialogFooter>
+      }
+    />
   )
 }
 
 export function NewProjectDialog() {
   return (
-    <DialogShell name="new-project" title="Nuevo proyecto" description="Elegí el formato del horario. Todo se puede cambiar después." width={640}>
+    <DialogShell name="new-project" title="Nuevo proyecto" description="Elegí un tema y un formato. Todo se puede cambiar después." width={980} layout="split">
       <ProjectForm mode="new" />
     </DialogShell>
   )
@@ -247,7 +262,7 @@ export function NewProjectDialog() {
 
 export function SettingsDialog() {
   return (
-    <DialogShell name="settings" title="Ajustes del documento" description="Título, tamaño, días y horario visible." width={640}>
+    <DialogShell name="settings" title="Ajustes del documento" description="Título, formato, días y horario visible." width={980} layout="split">
       <ProjectForm mode="settings" />
     </DialogShell>
   )

@@ -1,5 +1,6 @@
 import { AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Copy, CopyPlus, Eye, ListPlus, Palette, Settings2, SquarePlus, Trash2, Wand2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip } from "@/components/arc/tooltip/tooltip"
 import { CLASS_KINDS, DAYS, STEP, TEXT_LIMITS, dayLabel } from "@/domain/constants"
 import { contrastRatio, readableText } from "@/domain/color"
 import { conflictsOf, excludedBlocks, findSubjectByName, subjectUsage } from "@/domain/document"
@@ -10,7 +11,7 @@ import {
   adjustEdge, copyBlock, deleteBlock, edgeLimits, editBlockFields, editSubject, nudgeBlock, setBlockInterval, shiftBlockDay, startDuplicate, unifySubjects,
 } from "@/state/actions"
 import { useEditor } from "@/state/editor"
-import { ColorField, CommitInput, Field, IconButton, NativeSelect, SectionTitle, Swatch, TimeField } from "../common"
+import { ColorField, CommitInput, DayChips, Field, IconButton, SectionTitle, Select, Swatch, SwatchPicker, TimeField } from "../common"
 import { useFieldId } from "../platform"
 import { fitRangeToBlocks, toggleShow } from "../commands"
 
@@ -54,7 +55,7 @@ function BlockInspector({ doc, block }: { doc: ScheduleDocument; block: Block })
   const editor = useEditor.getState()
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-1 gap-5">
       <div className="flex items-start gap-3">
         <span className="mt-0.5 size-9 shrink-0 rounded-lg ring-1 ring-black/10 ring-inset" style={{ background: subject?.color }} aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -80,25 +81,18 @@ function BlockInspector({ doc, block }: { doc: ScheduleDocument; block: Block })
       ) : null}
 
       <div className="grid gap-3">
-        <Field label="Materia" htmlFor={subjectId}>
-          <NativeSelect id={subjectId} value={block.subjectId} onChange={(event) => editBlockFields(block.id, { subjectId: event.target.value })}>
-            {doc.subjects.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
-        <Field label="Día" htmlFor={dayId}>
-          <NativeSelect id={dayId} value={block.day} onChange={(event) => setBlockInterval(block.id, { day: event.target.value as DayId, start: block.start, end: block.end }, "Mover")}>
-            {DAYS.filter((day) => days.includes(day.id)).map((day) => (
-              <option key={day.id} value={day.id}>
-                {day.label}
-                {doc.settings.days.includes(day.id) ? "" : " (oculto)"}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
+        <Select
+          id={subjectId}
+          label="Materia"
+          value={block.subjectId}
+          onValueChange={(value) => editBlockFields(block.id, { subjectId: value })}
+          options={doc.subjects.map((item) => ({ value: item.id, label: item.name, icon: <Swatch color={item.color} className="size-3.5 rounded-[4px]" /> }))}
+        />
+        <div className="grid gap-1.5">
+          <span id={dayId} className="text-sm leading-tight font-medium">Día</span>
+          <DayChips label="Día" days={days} value={block.day} onChange={(day: DayId) => setBlockInterval(block.id, { day, start: block.start, end: block.end }, "Mover")} />
+          {doc.settings.days.includes(block.day) ? null : <p className="text-xs text-warning">{dayLabel(block.day)} no se muestra en el documento.</p>}
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <TimeField label="Inicio" value={block.start} min={doc.settings.range.start} max={block.end - STEP} onChange={(start) => setBlockInterval(block.id, { day: block.day, start, end: block.end }, "Cambiar inicio de")} />
           <TimeField label="Fin" end value={block.end} min={block.start + STEP} max={doc.settings.range.end} onChange={(end) => setBlockInterval(block.id, { day: block.day, start: block.start, end }, "Cambiar fin de")} />
@@ -186,9 +180,11 @@ function BlockInspector({ doc, block }: { doc: ScheduleDocument; block: Block })
         </Button>
       </div>
       {subject ? (
-        <Button variant="ghost" size="sm" className="justify-start" onClick={() => editor.set({ focusedSubjectId: subject.id, selectedBlockId: null })}>
-          <Palette /> Editar nombre y colores de {subject.name}
-        </Button>
+        <Tooltip content={`Editar nombre y colores de ${subject.name}`}>
+          <Button variant="ghost" size="sm" className="min-w-0 justify-start" onClick={() => editor.set({ focusedSubjectId: subject.id, selectedBlockId: null })}>
+            <Palette /> <span className="truncate">Editar nombre y colores de {subject.name}</span>
+          </Button>
+        </Tooltip>
       ) : null}
     </div>
   )
@@ -203,7 +199,7 @@ function SubjectInspector({ doc, subject }: { doc: ScheduleDocument; subject: Su
   const palette = doc.appearance.palette
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-1 gap-5">
       <div className="flex items-start gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-lg text-sm font-bold ring-1 ring-black/10 ring-inset" style={{ background: subject.color, color: subject.textColor }} aria-hidden="true">
           {subject.name.trim().charAt(0).toLocaleUpperCase("es") || "·"}
@@ -241,19 +237,7 @@ function SubjectInspector({ doc, subject }: { doc: ScheduleDocument; subject: Su
 
       <div className="grid gap-3">
         <SectionTitle>Colores</SectionTitle>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Colores de la paleta del tema">
-          {palette.map((color) => (
-            <button
-              key={color}
-              type="button"
-              aria-label={`Usar ${color}`}
-              aria-pressed={subject.color.toUpperCase() === color.toUpperCase()}
-              className={cn("size-7 rounded-md ring-1 ring-black/15 ring-inset outline-none focus-visible:ring-2 focus-visible:ring-ring", subject.color.toUpperCase() === color.toUpperCase() && "ring-2 ring-foreground ring-offset-2 ring-offset-background")}
-              style={{ background: color }}
-              onClick={() => editSubject(subject.id, { color, textColor: readableText(color) })}
-            />
-          ))}
-        </div>
+        <SwatchPicker label="Colores de la paleta del tema" colors={palette} value={subject.color} onChange={(color) => editSubject(subject.id, { color, textColor: readableText(color) })} />
         <ColorField label="Fondo" value={subject.color} onChange={(color) => editSubject(subject.id, { color }, `subject-color-${subject.id}`)} />
         <ColorField label="Texto" value={subject.textColor} background={subject.color} contrastLabel="sobre el fondo de la materia" onChange={(textColor) => editSubject(subject.id, { textColor }, `subject-text-${subject.id}`)} />
         <div className="flex items-center justify-between gap-2 text-xs">
@@ -293,7 +277,7 @@ function DocumentInspector({ doc }: { doc: ScheduleDocument }) {
     ["Contenido", `${doc.subjects.length} materias · ${doc.blocks.length} clases`],
   ]
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-1 gap-5">
       <div>
         <p className="text-xs text-muted-foreground">Documento</p>
         <h2 className="truncate text-base font-semibold leading-tight">{settings.title || "Sin título"}</h2>
@@ -334,7 +318,7 @@ export function Inspector({ doc, className }: { doc: ScheduleDocument; className
   const block = doc.blocks.find((item) => item.id === selectedBlockId)
   const subject = doc.subjects.find((item) => item.id === focusedSubjectId)
   return (
-    <div className={cn("min-h-0 overflow-y-auto p-4", className)}>
+    <div className={cn("min-h-0 min-w-0 overflow-y-auto p-4", className)}>
       {block ? <BlockInspector key={block.id} doc={doc} block={block} /> : subject ? <SubjectInspector key={subject.id} doc={doc} subject={subject} /> : <DocumentInspector doc={doc} />}
     </div>
   )

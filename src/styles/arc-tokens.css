@@ -65,8 +65,8 @@
   --duration-standard: 240ms; --duration-considered: 480ms; --duration-spring: 400ms;
 }
 
-/* Keep keyboard focus visible without suppressing shadcn's outlines. */
-:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+/* Keep keyboard focus visible without suppressing shadcn's outlines. Text fields draw their own ring, so they skip this one. */
+:where(button, a, select, [tabindex]):not(input, textarea):focus-visible {
   outline: var(--focus-outline-width) solid var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }

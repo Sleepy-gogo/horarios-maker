@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { AlertTriangle, Check, ChevronDown, Loader2, RefreshCw } from "lucide-react"
+import { AlertTriangle, Check, ChevronDown, Italic, Loader2, RefreshCw } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/arc/popover/popover"
 import { SearchField } from "@/components/arc/search-field/search-field"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { LOCAL_FAMILIES, categoryLabel, loadGoogleCatalog, loadGoogleFamily, loc
 import { fontStatus, loadFont, retryFont } from "@/fonts/service"
 import { useFontsVersion } from "@/hooks/use-fonts-version"
 import { cn } from "@/lib/utils"
-import { NativeSelect } from "../common"
+import { IconButton, Select } from "../common"
 
 const WEIGHT_NAMES: Record<number, string> = { 100: "Fina", 200: "Extraligera", 300: "Ligera", 400: "Regular", 500: "Media", 600: "Seminegrita", 700: "Negrita", 800: "Extranegrita", 900: "Black" }
 
@@ -118,11 +118,11 @@ export function FontPicker({ label, value, onChange }: { label: string; value: F
 
   return (
     <div className="grid gap-1.5">
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,9.5rem)] gap-1.5">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,9rem)_auto] gap-1.5">
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger className="flex h-8 min-w-0 items-center justify-between gap-2 rounded-lg border border-input px-2.5 text-left text-sm outline-none hover:bg-accent/50 focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" aria-label={`${label}: ${value.family}. Cambiar fuente`}>
-            <span className="truncate">{value.family}</span>
-            <span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground">
+          <PopoverTrigger className="flex h-8 min-w-0 items-center justify-between gap-2 rounded-lg border border-input px-2.5 text-left text-sm outline-none hover:bg-foreground/4 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-[popup-open]:border-ring dark:bg-input/30" aria-label={`${label}: ${value.family}. Cambiar fuente`}>
+            <span className="truncate" style={{ fontFamily: `"${value.family}"` }}>{value.family}</span>
+            <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
               {value.source === "google" ? "Google" : "Incluida"}
               <ChevronDown className="size-3.5" aria-hidden="true" />
             </span>
@@ -171,24 +171,26 @@ export function FontPicker({ label, value, onChange }: { label: string; value: F
             </div>
           </PopoverContent>
         </Popover>
-        <NativeSelect
-          aria-label={`${label}: peso`}
+        <Select
+          label={`${label}: peso`}
+          hideLabel
           value={String(value.weight)}
           disabled={!variants}
-          onChange={(event) => onChange({ ...value, weight: Number(event.target.value) })}
+          onValueChange={(weight) => onChange({ ...value, weight: Number(weight) })}
+          options={(variants?.weights.includes(value.weight) ? variants.weights : [...(variants?.weights ?? []), value.weight].sort((a, b) => a - b)).map((weight) => ({ value: String(weight), label: weightName(weight) }))}
+        />
+        <IconButton
+          label={variants?.italic || value.italic ? "Cursiva" : "Esta fuente no tiene cursiva"}
+          variant="outline"
+          aria-pressed={value.italic}
+          disabled={!variants?.italic && !value.italic}
+          className={cn("size-8", value.italic && "border-primary bg-primary/10 text-primary")}
+          onClick={() => onChange({ ...value, italic: !value.italic })}
         >
-          {(variants?.weights.includes(value.weight) ? variants.weights : [...(variants?.weights ?? []), value.weight].sort((a, b) => a - b)).map((weight) => (
-            <option key={weight} value={weight}>
-              {weightName(weight)}
-            </option>
-          ))}
-        </NativeSelect>
+          <Italic />
+        </IconButton>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <label className={cn("inline-flex items-center gap-1.5 text-xs", !variants?.italic && "opacity-50")}>
-          <input type="checkbox" className="accent-[var(--primary)]" checked={value.italic} disabled={!variants?.italic && !value.italic} onChange={(event) => onChange({ ...value, italic: event.target.checked })} />
-          Cursiva
-        </label>
+      <div className="flex flex-wrap items-center gap-2 empty:hidden">
         <FontStatusLine font={value} />
       </div>
     </div>

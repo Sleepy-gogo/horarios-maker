@@ -18,3 +18,4 @@ export function useLayoutTier() {
   const tablet = useMedia("(min-width: 768px)")
   return desktop ? "desktop" : tablet ? "tablet" : "phone"
 }
+export type LayoutTier = ReturnType<typeof useLayoutTier>

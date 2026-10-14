@@ -2,7 +2,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Variants } from "motion/react";
 import { ChevronDown, Clock3 } from "lucide-react";
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { motionTokens } from "../lib/motion-tokens";
 import styles from "./time-picker.module.css";
 export interface TimePickerProps {
@@ -68,12 +69,17 @@ export function TimePicker({ label, value, defaultValue = "09:00", onChange, des
     const labelId = `${id}-label`;
     const valueId = `${id}-value`;
     const hintId = `${id}-hint`;
-    const rootRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
     const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
     const centerOnOpen = useRef(false);
     const typedTimer = useRef(0);
     const [internal, setInternal] = useState(defaultValue);
     const [open, setOpen] = useState(false);
+    const [menuMounted, setMenuMounted] = useState(false);
+    const attachMenu = useCallback((node: HTMLDivElement | null) => {
+        menuRef.current = node;
+        setMenuMounted(node !== null);
+    }, []);
     const [activeIndex, setActiveIndex] = useState(-1);
     const [typed, setTyped] = useState("");
     const selected = value ?? internal;
@@ -95,29 +101,34 @@ export function TimePicker({ label, value, defaultValue = "09:00", onChange, des
     const display = (raw: string) => { const total = toMinutes(raw); const hour = Math.floor(total / 60); const minute = total % 60; return format === "24h" ? `${pad(hour)}:${pad(minute)}` : `${hour % 12 || 12}:${pad(minute)} ${hour < 12 ? "AM" : "PM"}`; };
     const typedValue = typed ? parseTyped(typed, includeEndOfDay) : null;
     const typedValid = typedValue !== null && typedValue >= min && typedValue <= max;
-    useEffect(() => { const close = (event: PointerEvent) => { if (!rootRef.current?.contains(event.target as Node))
-        setOpen(false); }; document.addEventListener("pointerdown", close); return () => document.removeEventListener("pointerdown", close); }, []);
     useEffect(() => () => window.clearTimeout(typedTimer.current), []);
-    // Runs before paint so the menu's first frame is already centered on the selected time.
+    // Wait for the portal to mount and Popper to measure its available height before centering.
     useLayoutEffect(() => {
+        const menu = menuRef.current;
         if (!open || activeIndex < 0)
             return;
-        // Scroll only the menu, never the page: the selected time opens centered, arrow keys then keep the highlight in view.
-        const option = optionRefs.current[activeIndex];
-        const menu = option?.parentElement;
-        if (!option || !menu)
-            return;
-        const top = option.offsetTop;
-        const bottom = top + option.offsetHeight;
-        if (centerOnOpen.current) {
-            centerOnOpen.current = false;
-            menu.scrollTop = top - (menu.clientHeight - option.offsetHeight) / 2;
-        }
-        else if (top < menu.scrollTop)
-            menu.scrollTop = top;
-        else if (bottom > menu.scrollTop + menu.clientHeight)
-            menu.scrollTop = bottom - menu.clientHeight;
-    }, [activeIndex, open]);
+        const scrollActiveOption = () => {
+            // Scroll only the menu, never the page.
+            const option = optionRefs.current[activeIndex];
+            if (!option || !menu || !menu.clientHeight)
+                return;
+            const top = option.offsetTop;
+            const bottom = top + option.offsetHeight;
+            if (centerOnOpen.current) {
+                centerOnOpen.current = false;
+                menu.scrollTop = top - (menu.clientHeight - option.offsetHeight) / 2;
+            }
+            else if (top < menu.scrollTop)
+                menu.scrollTop = top;
+            else if (bottom > menu.scrollTop + menu.clientHeight)
+                menu.scrollTop = bottom - menu.clientHeight;
+        };
+        scrollActiveOption();
+        if (!menu) return;
+        const observer = new ResizeObserver(scrollActiveOption);
+        observer.observe(menu);
+        return () => observer.disconnect();
+    }, [activeIndex, open, menuMounted]);
     const choose = (next: string) => { setTyped(""); if (value === undefined)
         setInternal(next); if (next !== selected)
         onChange?.(next); setOpen(false); };
@@ -188,23 +199,23 @@ export function TimePicker({ label, value, defaultValue = "09:00", onChange, des
         }
     };
     const hint = typed ? (typedValid ? `${display(fromMinutes(typedValue!))} · Enter para aplicar` : typedValue !== null ? "Fuera del rango permitido" : `“${typed}”…`) : null;
-    return <div ref={rootRef} className={[styles.field, className].filter(Boolean).join(" ")} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) {
+    return <PopoverPrimitive.Root open={open} onOpenChange={next => next ? openMenu() : setOpen(false)}><div className={[styles.field, className].filter(Boolean).join(" ")} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) {
         setOpen(false);
         setTyped("");
     } }}>
     <span id={labelId} className={hideLabel ? styles.srOnly : styles.label}>{label}</span>
     <div className={styles.anchor}>
-      <button type="button" role="combobox" className={styles.trigger} disabled={disabled} aria-labelledby={`${labelId} ${valueId}`} aria-describedby={hint ? hintId : undefined} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? `${id}-listbox` : undefined} aria-activedescendant={open && activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined} onClick={() => open ? setOpen(false) : openMenu()} onKeyDown={onKeyDown}>
+      <PopoverPrimitive.Trigger asChild><button type="button" role="combobox" className={styles.trigger} disabled={disabled} aria-labelledby={`${labelId} ${valueId}`} aria-describedby={hint ? hintId : undefined} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? `${id}-listbox` : undefined} aria-activedescendant={open && activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined} onKeyDown={onKeyDown}>
         <Clock3 size={16} aria-hidden="true"/>
         <span id={valueId} className={styles.srOnly}>{selected ? display(selected) : placeholder}</span>
         <span className={styles.valueText} aria-hidden="true"><AnimatePresence initial={false} custom={direction}><motion.span key={typed ? `typed-${typed}` : selected || "placeholder"} className={typed ? styles.typed : selected ? styles.value : styles.placeholder} custom={direction} variants={reduce || typed ? valueFade : valueRoll} initial="enter" animate="center" exit="exit">{typed ? typed : selected ? display(selected) : placeholder}</motion.span></AnimatePresence></span>
         <ChevronDown className={styles.chevron} size={16} aria-hidden="true"/>
-      </button>
-      <AnimatePresence initial={false}>{open && <motion.div id={`${id}-listbox`} className={styles.menu} role="listbox" aria-label={`Opciones de ${label}`} initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1, transition: reduce ? { duration: motionTokens.duration.instant } : { ...motionTokens.spring.snappy, opacity: { duration: motionTokens.duration.fast, ease: enter } } }} exit={{ opacity: 0, ...(reduce ? {} : { y: -4, scale: .98 }), transition: { duration: motionTokens.duration.instant, ease: standard } }}>
+      </button></PopoverPrimitive.Trigger>
+      <PopoverPrimitive.Portal><PopoverPrimitive.Content ref={attachMenu} id={`${id}-listbox`} className={styles.menu} role="listbox" aria-label={`Opciones de ${label}`} align="start" sideOffset={6} collisionPadding={12} onOpenAutoFocus={event => event.preventDefault()} onCloseAutoFocus={event => event.preventDefault()}>
         {options.map((option, index) => <button ref={node => { optionRefs.current[index] = node; }} id={`${id}-option-${index}`} type="button" role="option" tabIndex={-1} onPointerDown={event => event.preventDefault()} aria-selected={option === selected} data-active={activeIndex === index || undefined} className={styles.option} key={option} onPointerMove={() => { if (activeIndex !== index)
             setActiveIndex(index); }} onClick={() => choose(option)}>{display(option)}{option === selected && <span className={styles.dot} aria-hidden="true"/>}</button>)}
-      </motion.div>}</AnimatePresence>
+      </PopoverPrimitive.Content></PopoverPrimitive.Portal>
     </div>
     {hint ? <span id={hintId} className={styles.description} aria-live="polite">{hint}</span> : description ? <span className={styles.description}>{description}</span> : null}
-  </div>;
+  </div></PopoverPrimitive.Root>;
 }

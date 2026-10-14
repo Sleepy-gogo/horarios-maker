@@ -1,4 +1,5 @@
-import { forwardRef, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from "react"
+import { forwardRef, useRef, useState, type ComponentProps, type KeyboardEvent, type ReactNode } from "react"
+import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -6,7 +7,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Tooltip } from "@/components/arc/tooltip/tooltip"
 import { ColorPicker } from "@/components/arc/color-picker/color-picker"
 import { TimePicker } from "@/components/arc/time-picker/time-picker"
-import { normalizeHex } from "@/domain/color"
+import SegmentedControl from "@/components/arc/segmented-control/segmented-control"
+import { DAYS } from "@/domain/constants"
+import { normalizeHex, readableText } from "@/domain/color"
+import type { DayId } from "@/domain/types"
 import { formatMinutes } from "@/domain/time"
 import { cn } from "@/lib/utils"
 import { useStudio } from "@/state/studio"
@@ -25,10 +29,12 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
   )
 })
 
+export { Select, type SelectOption } from "@/components/arc/select/select"
+
 export function Field({ label, hint, error, children, htmlFor, className }: { label: ReactNode; hint?: ReactNode; error?: string | null; children: ReactNode; htmlFor?: string; className?: string }) {
   return (
-    <div className={cn("grid min-w-0 gap-1.5", className)}>
-      <label htmlFor={htmlFor} className="text-sm font-medium leading-tight">
+    <div className={cn("grid min-w-0 content-start gap-1.5", className)}>
+      <label htmlFor={htmlFor} className="text-sm leading-tight font-medium">
         {label}
       </label>
       {children}
@@ -43,11 +49,163 @@ export function Field({ label, hint, error, children, htmlFor, className }: { la
   )
 }
 
-export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
+export function SectionTitle({ children, action, description }: { children: ReactNode; action?: ReactNode; description?: ReactNode }) {
   return (
     <div className="flex min-h-7 items-center justify-between gap-2">
-      <h3 className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{children}</h3>
+      <div className="min-w-0">
+        <h3 className="section-label">{children}</h3>
+        {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
+      </div>
       {action}
+    </div>
+  )
+}
+
+/** Moves focus and selection with the arrow keys inside a radio-like group; only the chosen item is a tab stop. */
+function useRoving(count: number, index: number, choose: (index: number) => void) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([])
+  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const last = count - 1
+    const next =
+      event.key === "ArrowRight" || event.key === "ArrowDown" ? (index >= last ? 0 : index + 1)
+      : event.key === "ArrowLeft" || event.key === "ArrowUp" ? (index <= 0 ? last : index - 1)
+      : event.key === "Home" ? 0
+      : event.key === "End" ? last
+      : -1
+    if (next < 0) return
+    event.preventDefault()
+    choose(next)
+    refs.current[next]?.focus()
+  }
+  return { refs, onKeyDown }
+}
+
+export type ChoiceTile = { value: string; label: string; meta?: ReactNode; visual?: ReactNode; disabled?: boolean }
+
+/** A radio group of visual tiles: a picture of the option, its name, and a quiet detail line. */
+export function ChoiceTiles({ label, options, value, onChange, className, size = "md", direction = "column", indicator = true }: { label: string; options: ChoiceTile[]; value: string; onChange: (value: string) => void; className?: string; size?: "sm" | "md"; direction?: "column" | "row"; indicator?: boolean }) {
+  const index = Math.max(0, options.findIndex((option) => option.value === value))
+  const { refs, onKeyDown } = useRoving(options.length, index, (next) => onChange(options[next]!.value))
+  return (
+    <div role="radiogroup" aria-label={label} className={cn("grid gap-2", className)}>
+      {options.map((option, position) => {
+        const checked = option.value === value
+        return (
+          <button
+            key={option.value}
+            ref={(node) => void (refs.current[position] = node)}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            disabled={option.disabled}
+            tabIndex={position === index ? 0 : -1}
+            onKeyDown={onKeyDown}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "group relative flex min-w-0 overflow-hidden rounded-xl border bg-card text-left outline-none transition-[border-color,box-shadow] duration-150 focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
+              direction === "row" ? "flex-row items-center pl-3" : "flex-col",
+              checked ? "border-primary shadow-[0_0_0_1px_var(--primary)]" : "border-border hover:border-foreground/25",
+            )}
+          >
+            {option.visual}
+            <span className={cn("flex min-w-0 flex-1 items-center gap-2", size === "sm" ? "px-2.5 py-2" : "px-3 py-2.5")}>
+              <span className={cn("min-w-0 flex-1", !indicator && "text-center")}>
+                <span className={cn("block truncate leading-tight font-medium", size === "sm" ? "text-[0.8125rem]" : "text-sm")}>{option.label}</span>
+                {option.meta ? <span className="mt-0.5 block truncate text-xs text-muted-foreground tabular-nums">{option.meta}</span> : null}
+              </span>
+              {indicator ? (
+                <span aria-hidden="true" className={cn("grid size-4 shrink-0 place-items-center rounded-full transition-colors", checked ? "bg-primary text-primary-foreground" : "border border-input")}>
+                  {checked ? <Check className="size-2.5" strokeWidth={3.5} /> : null}
+                </span>
+              ) : null}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+const chip = "inline-flex h-8 min-w-0 items-center justify-center rounded-lg border text-[0.8125rem] font-medium outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 pointer-coarse:h-10"
+
+type DayChipsProps = { label: string; days?: DayId[]; className?: string } & ({ multiple: true; value: DayId[]; onChange: (days: DayId[]) => void } | { multiple?: false; value: DayId; onChange: (day: DayId) => void })
+
+/** Days of the week as equal chips. Several can be on (visible days), or exactly one (a class's day). */
+export function DayChips(props: DayChipsProps) {
+  const days = DAYS.filter((day) => !props.days || props.days.includes(day.id))
+  const single = !props.multiple
+  const index = props.multiple ? 0 : Math.max(0, days.findIndex((day) => day.id === props.value))
+  const { refs, onKeyDown } = useRoving(days.length, index, (next) => {
+    if (!props.multiple) props.onChange(days[next]!.id)
+  })
+  const toggle = (day: DayId, on: boolean) => {
+    if (props.multiple) props.onChange(on ? props.value.filter((item) => item !== day) : [...props.value, day])
+    else props.onChange(day)
+  }
+  return (
+    <div role={single ? "radiogroup" : "group"} aria-label={props.label} className={cn("grid gap-1", props.className)} style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
+      {days.map((day, position) => {
+        const on = props.multiple ? props.value.includes(day.id) : props.value === day.id
+        return (
+          <button
+            key={day.id}
+            ref={(node) => void (refs.current[position] = node)}
+            type="button"
+            title={day.label}
+            aria-label={day.label}
+            {...(single ? { role: "radio", "aria-checked": on, tabIndex: position === index ? 0 : -1, onKeyDown } : { "aria-pressed": on })}
+            onClick={() => toggle(day.id, on)}
+            className={cn(chip, on ? "border-primary/45 bg-primary/10 text-primary" : "border-border bg-transparent text-muted-foreground hover:border-foreground/25 hover:text-foreground")}
+          >
+            {day.short}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** The theme palette as round swatches. The chosen one carries a check in the color its text would use. */
+export function SwatchPicker({ label, colors, value, onChange, className }: { label: string; colors: string[]; value: string; onChange: (color: string) => void; className?: string }) {
+  const unique = [...new Set(colors.map((color) => color.toUpperCase()))]
+  const index = unique.indexOf(value.toUpperCase())
+  const stop = Math.max(0, index)
+  const { refs, onKeyDown } = useRoving(unique.length, stop, (next) => onChange(unique[next]!))
+  return (
+    <div role="radiogroup" aria-label={label} className={cn("flex flex-wrap gap-2", className)}>
+      {unique.map((color, position) => {
+        const checked = position === index
+        return (
+          <button
+            key={color}
+            ref={(node) => void (refs.current[position] = node)}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            aria-label={color}
+            tabIndex={position === stop ? 0 : -1}
+            onKeyDown={onKeyDown}
+            onClick={() => onChange(color)}
+            className={cn(
+              "grid size-8 place-items-center rounded-full shadow-[inset_0_0_0_1px_rgb(0_0_0/0.08)] outline-none transition-transform duration-150 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-95 pointer-coarse:size-9",
+              checked && "ring-2 ring-foreground ring-offset-2 ring-offset-[var(--popover)]",
+            )}
+            style={{ background: color }}
+          >
+            {checked ? <Check className="size-4" strokeWidth={2.75} style={{ color: readableText(color) }} aria-hidden="true" /> : null}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** A labeled segmented control for two to four short, mutually exclusive options. */
+export function Segmented<T extends string>({ label, options, value, onChange, hideLabel, className }: { label: string; options: { value: T; label: string }[]; value: T; onChange: (value: T) => void; hideLabel?: boolean; className?: string }) {
+  return (
+    <div className={cn("grid min-w-0 content-start gap-1.5", className)}>
+      {hideLabel ? null : <span className="text-sm leading-tight font-medium">{label}</span>}
+      <SegmentedControl label={label} options={options} value={value} onValueChange={(next) => onChange(next as T)} className="segmented-fill" />
     </div>
   )
 }
@@ -105,23 +263,6 @@ export function TimeField({ label, value, onChange, end = false, min, max, hideL
 
 export function Swatch({ color, className }: { color: string; className?: string }) {
   return <span aria-hidden="true" className={cn("inline-block size-3 shrink-0 rounded-full ring-1 ring-black/15 ring-inset", className)} style={{ background: color }} />
-}
-
-/** Native select styled like the inputs: reliable on touch screens and with screen readers. */
-export function NativeSelect({ className, children, ...props }: ComponentProps<"select">) {
-  return (
-    <div className={cn("relative min-w-0", className)}>
-      <select
-        className="h-8 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent pr-8 pl-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50 dark:bg-input/30 [&>option]:bg-popover [&>option]:text-popover-foreground"
-        {...props}
-      >
-        {children}
-      </select>
-      <svg aria-hidden="true" viewBox="0 0 16 16" className="pointer-events-none absolute top-1/2 right-2.5 size-3.5 -translate-y-1/2 text-muted-foreground">
-        <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </div>
-  )
 }
 
 /** Labeled switch row. The whole row is the label, so it is easy to hit on touch screens. */
