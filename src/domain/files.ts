@@ -52,7 +52,7 @@ export function readImport(text: string): ImportResult {
     return { ok: false, message: `El archivo usa la versión ${record.schemaVersion}, más nueva que esta aplicación. Actualizá la página e intentá de nuevo.` }
   }
 
-  if (record.format === PROJECT_FORMAT || record.schemaVersion === 2) {
+  if (record.format === PROJECT_FORMAT || (record.format === undefined && record.schemaVersion === 2)) {
     const docInput = record.format === PROJECT_FORMAT ? record.document : data
     const result = validateDocument(docInput)
     if (!result.ok) return { ok: false, message: "El proyecto tiene datos inválidos.", problems: result.problems }
