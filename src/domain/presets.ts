@@ -65,85 +65,74 @@ function mono(): TypeSet {
   }
 }
 
-const WARM = ["#F2A65A", "#7FB7BE", "#E86F68", "#9DC183", "#B79CED", "#F6D55C", "#5B8DEF", "#F28DB2", "#4FB3A9", "#C9A27E"]
-const NIGHT = ["#F59E0B", "#38BDF8", "#F472B6", "#34D399", "#A78BFA", "#FB7185", "#FACC15", "#60A5FA", "#2DD4BF", "#FB923C"]
-const INK = ["#0F766E", "#1D4ED8", "#B45309", "#BE123C", "#4D7C0F", "#7C3AED", "#0E7490", "#A16207", "#9D174D", "#334155"]
-const PASTEL = ["#FBC4AB", "#B5E2FA", "#CDB4DB", "#C1E1C1", "#FFE5A0", "#F7B2BD", "#A2D2FF", "#D8E2DC", "#FFD6A5", "#BDE0FE"]
-const MONO = ["#111111", "#3A3A3A", "#FF4F00", "#6B6B6B", "#1F3FFF", "#909090", "#00A86B", "#C0C0C0", "#E0115F", "#4B4B4B"]
+/**
+ * Palettes are chosen per theme so every color takes the same text color: dark text on the light and pastel sets,
+ * white on the vivid set. Neighboring entries alternate warm and cool hues, so the first subjects never look alike.
+ */
+const BRIGHT = ["#3B82F6", "#F43F5E", "#10B981", "#F59E0B", "#8B5CF6", "#F97316", "#06B6D4", "#EC4899", "#84CC16", "#6366F1", "#14B8A6", "#EF4444"]
+const VIVID = ["#2563EB", "#E11D48", "#7C3AED", "#0F766E", "#DB2777", "#4F46E5", "#0369A1", "#C026D3", "#DC2626", "#15803D", "#9333EA", "#0E7490"]
+const PASTEL = ["#BFDBFE", "#FECDD3", "#A7F3D0", "#FDE68A", "#DDD6FE", "#FED7AA", "#A5F3FC", "#FBCFE8", "#D9F99D", "#C7D2FE", "#99F6E4", "#F5D0FE"]
+const NEON = ["#60A5FA", "#FB7185", "#34D399", "#FBBF24", "#A78BFA", "#FB923C", "#22D3EE", "#F472B6", "#A3E635", "#818CF8", "#2DD4BF", "#38BDF8"]
+const MARKER = ["#FDE047", "#7DD3FC", "#F9A8D4", "#BEF264", "#C4B5FD", "#FDBA74", "#6EE7B7", "#FCA5A5", "#67E8F9", "#A5B4FC"]
+const PRINT = ["#2563EB", "#DC2626", "#059669", "#D97706", "#7C3AED", "#EA580C", "#0891B2", "#DB2777", "#65A30D", "#4F46E5"]
 
 export type ThemePreset = { id: string; appearance: Appearance }
 
+const noSheet = (fill: string) => ({ show: false, fill, radius: 0, borderColor: fill, borderWidth: 0, padding: 28 })
+
+/** Six flat looks: one background, no gradients and no decorative shapes. */
 export const THEME_PRESETS: ThemePreset[] = [
   {
-    id: "papel",
+    id: "claro",
     appearance: {
-      name: "Papel",
-      page: { background: "#F4EFE4", backgroundEnd: "#FFFAF0", margin: 36 },
-      colors: { ink: "#171717", muted: "#6B655B", accent: "#D65A31" },
-      sheet: { show: true, fill: "#FFFBF4", radius: 22, borderColor: "#E6DDCB", borderWidth: 1, padding: 32 },
-      header: { align: "center", gap: 22 },
+      name: "Claro",
+      page: { background: "#FFFFFF", backgroundEnd: null, margin: 44 },
+      colors: { ink: "#18181B", muted: "#71717A", accent: "#3B82F6" },
+      sheet: noSheet("#FFFFFF"),
+      header: { align: "start", gap: 28 },
       grid: {
-        headerFill: "#F4ECDD", bodyFill: "#FFFDF8", lineColor: "#DCD2BF", lineWidth: 1, halfHourLines: true,
-        stripes: false, stripeColor: "#F6F0E4", columnGap: 0, radius: 12, hourFormat: "HH:mm",
+        headerFill: "#FFFFFF", bodyFill: "#FFFFFF", lineColor: "#ECECEF", lineWidth: 1, halfHourLines: false,
+        stripes: false, stripeColor: "#FAFAFA", columnGap: 0, radius: 0, hourFormat: "HH:mm",
       },
-      blocks: { radius: 12, inset: 4, padding: 9, borderWidth: 0, borderColor: "auto", align: "center", style: "solid", showAccentBar: false },
-      legend: { title: "Referencias", showTitle: true, style: "chips" },
-      decorations: { accentShapes: true },
-      type: poster(),
-      palette: WARM,
-    },
-  },
-  {
-    id: "noche",
-    appearance: {
-      name: "Noche",
-      page: { background: "#0F172A", backgroundEnd: "#111827", margin: 36 },
-      colors: { ink: "#F8FAFC", muted: "#94A3B8", accent: "#F59E0B" },
-      sheet: { show: true, fill: "#162033", radius: 16, borderColor: "#24324A", borderWidth: 1, padding: 30 },
-      header: { align: "center", gap: 22 },
-      grid: {
-        headerFill: "#1C2840", bodyFill: "#131C2E", lineColor: "#2A3A55", lineWidth: 1, halfHourLines: true,
-        stripes: false, stripeColor: "#162236", columnGap: 0, radius: 10, hourFormat: "HH:mm",
-      },
-      blocks: { radius: 9, inset: 4, padding: 9, borderWidth: 0, borderColor: "auto", align: "center", style: "solid", showAccentBar: false },
-      legend: { title: "Referencias", showTitle: true, style: "chips" },
-      decorations: { accentShapes: true },
-      type: poster(),
-      palette: NIGHT,
-    },
-  },
-  {
-    id: "tinta",
-    appearance: {
-      name: "Tinta",
-      page: { background: "#E7ECEF", backgroundEnd: null, margin: 32 },
-      colors: { ink: "#0F172A", muted: "#475569", accent: "#0F766E" },
-      sheet: { show: false, fill: "#FFFFFF", radius: 4, borderColor: "#0F172A", borderWidth: 2, padding: 28 },
-      header: { align: "start", gap: 20 },
-      grid: {
-        headerFill: "#0F172A", bodyFill: "#FFFFFF", lineColor: "#0F172A", lineWidth: 1.5, halfHourLines: false,
-        stripes: true, stripeColor: "#F1F5F9", columnGap: 0, radius: 0, hourFormat: "HH:mm",
-      },
-      blocks: { radius: 2, inset: 3, padding: 8, borderWidth: 1.5, borderColor: "#0F172A", align: "start", style: "solid", showAccentBar: false },
-      legend: { title: "Materias", showTitle: true, style: "list" },
+      blocks: { radius: 8, inset: 3, padding: 9, borderWidth: 0, borderColor: "auto", align: "start", style: "soft", showAccentBar: true },
+      legend: { title: "Materias", showTitle: false, style: "chips" },
       decorations: { accentShapes: false },
-      type: technical(),
-      palette: INK,
+      type: soft(),
+      palette: BRIGHT,
+    },
+  },
+  {
+    id: "vivo",
+    appearance: {
+      name: "Vivo",
+      page: { background: "#FFFFFF", backgroundEnd: null, margin: 40 },
+      colors: { ink: "#18181B", muted: "#52525B", accent: "#E11D48" },
+      sheet: noSheet("#FFFFFF"),
+      header: { align: "center", gap: 24 },
+      grid: {
+        headerFill: "#18181B", bodyFill: "#FFFFFF", lineColor: "#E4E4E7", lineWidth: 1, halfHourLines: false,
+        stripes: false, stripeColor: "#FAFAFA", columnGap: 0, radius: 12, hourFormat: "HH:mm",
+      },
+      blocks: { radius: 10, inset: 3, padding: 9, borderWidth: 0, borderColor: "auto", align: "center", style: "solid", showAccentBar: false },
+      legend: { title: "Materias", showTitle: false, style: "chips" },
+      decorations: { accentShapes: false },
+      type: poster(),
+      palette: VIVID,
     },
   },
   {
     id: "pastel",
     appearance: {
       name: "Pastel",
-      page: { background: "#FFF7F2", backgroundEnd: "#F3F0FF", margin: 36 },
-      colors: { ink: "#2B2D42", muted: "#7A7D95", accent: "#E07A5F" },
-      sheet: { show: false, fill: "#FFFFFF", radius: 24, borderColor: "#ECE6F5", borderWidth: 0, padding: 28 },
-      header: { align: "start", gap: 24 },
+      page: { background: "#FFFFFF", backgroundEnd: null, margin: 40 },
+      colors: { ink: "#27272A", muted: "#71717A", accent: "#EC4899" },
+      sheet: noSheet("#FFFFFF"),
+      header: { align: "start", gap: 26 },
       grid: {
-        headerFill: "#FFFFFF", bodyFill: "#FFFFFF", lineColor: "#EAE4F2", lineWidth: 1, halfHourLines: false,
-        stripes: false, stripeColor: "#FAF7FD", columnGap: 8, radius: 16, hourFormat: "H:mm",
+        headerFill: "#FFFFFF", bodyFill: "#F7F7F8", lineColor: "#EDEDF0", lineWidth: 1, halfHourLines: false,
+        stripes: false, stripeColor: "#F4F4F5", columnGap: 8, radius: 14, hourFormat: "H:mm",
       },
-      blocks: { radius: 14, inset: 3, padding: 10, borderWidth: 0, borderColor: "auto", align: "start", style: "solid", showAccentBar: false },
+      blocks: { radius: 12, inset: 4, padding: 10, borderWidth: 0, borderColor: "auto", align: "start", style: "solid", showAccentBar: false },
       legend: { title: "Materias", showTitle: false, style: "chips" },
       decorations: { accentShapes: false },
       type: soft(),
@@ -151,47 +140,70 @@ export const THEME_PRESETS: ThemePreset[] = [
     },
   },
   {
-    id: "pizarra",
+    id: "noche",
     appearance: {
-      name: "Pizarra",
-      page: { background: "#1E2B26", backgroundEnd: "#16211D", margin: 34 },
-      colors: { ink: "#EEF3EC", muted: "#A9B8AE", accent: "#E9C46A" },
-      sheet: { show: false, fill: "#22312B", radius: 12, borderColor: "#30443B", borderWidth: 1, padding: 28 },
-      header: { align: "center", gap: 22 },
+      name: "Noche",
+      page: { background: "#0B0B0E", backgroundEnd: null, margin: 40 },
+      colors: { ink: "#FAFAFA", muted: "#A1A1AA", accent: "#A78BFA" },
+      sheet: noSheet("#0B0B0E"),
+      header: { align: "start", gap: 28 },
       grid: {
-        headerFill: "#22322B", bodyFill: "#1B2722", lineColor: "#3A5045", lineWidth: 1, halfHourLines: true,
-        stripes: false, stripeColor: "#1F2C27", columnGap: 6, radius: 10, hourFormat: "HH:mm",
+        headerFill: "#0B0B0E", bodyFill: "#0B0B0E", lineColor: "#232329", lineWidth: 1, halfHourLines: false,
+        stripes: false, stripeColor: "#111115", columnGap: 0, radius: 0, hourFormat: "HH:mm",
       },
-      blocks: { radius: 8, inset: 3, padding: 9, borderWidth: 0, borderColor: "auto", align: "center", style: "soft", showAccentBar: true },
-      legend: { title: "Referencias", showTitle: true, style: "chips" },
+      blocks: { radius: 8, inset: 3, padding: 9, borderWidth: 0, borderColor: "auto", align: "start", style: "solid", showAccentBar: false },
+      legend: { title: "Materias", showTitle: false, style: "chips" },
       decorations: { accentShapes: false },
-      type: poster(),
-      palette: NIGHT,
+      type: soft(),
+      palette: NEON,
+    },
+  },
+  {
+    id: "tinta",
+    appearance: {
+      name: "Tinta",
+      page: { background: "#FFFFFF", backgroundEnd: null, margin: 36 },
+      colors: { ink: "#0A0A0A", muted: "#525252", accent: "#0A0A0A" },
+      sheet: noSheet("#FFFFFF"),
+      header: { align: "start", gap: 22 },
+      grid: {
+        headerFill: "#0A0A0A", bodyFill: "#FFFFFF", lineColor: "#0A0A0A", lineWidth: 1.5, halfHourLines: false,
+        stripes: false, stripeColor: "#F5F5F5", columnGap: 0, radius: 0, hourFormat: "HH:mm",
+      },
+      blocks: { radius: 4, inset: 4, padding: 8, borderWidth: 1.5, borderColor: "#0A0A0A", align: "start", style: "solid", showAccentBar: false },
+      legend: { title: "Materias", showTitle: true, style: "list" },
+      decorations: { accentShapes: false },
+      type: technical(),
+      palette: MARKER,
     },
   },
   {
     id: "editorial",
     appearance: {
       name: "Editorial",
-      page: { background: "#FFFFFF", backgroundEnd: null, margin: 40 },
-      colors: { ink: "#111111", muted: "#6F6F6F", accent: "#FF4F00" },
-      sheet: { show: false, fill: "#FFFFFF", radius: 0, borderColor: "#111111", borderWidth: 0, padding: 24 },
+      page: { background: "#FFFFFF", backgroundEnd: null, margin: 44 },
+      colors: { ink: "#111111", muted: "#737373", accent: "#FF4F00" },
+      sheet: noSheet("#FFFFFF"),
       header: { align: "start", gap: 26 },
       grid: {
-        headerFill: "#FFFFFF", bodyFill: "#FFFFFF", lineColor: "#D9D9D9", lineWidth: 1, halfHourLines: true,
-        stripes: false, stripeColor: "#F7F7F7", columnGap: 0, radius: 0, hourFormat: "HH:mm",
+        headerFill: "#FFFFFF", bodyFill: "#FFFFFF", lineColor: "#E5E5E5", lineWidth: 1, halfHourLines: true,
+        stripes: false, stripeColor: "#FAFAFA", columnGap: 0, radius: 0, hourFormat: "HH:mm",
       },
       blocks: { radius: 0, inset: 2, padding: 8, borderWidth: 0, borderColor: "auto", align: "start", style: "outline", showAccentBar: true },
       legend: { title: "Índice", showTitle: true, style: "list" },
       decorations: { accentShapes: false },
       type: mono(),
-      palette: MONO,
+      palette: PRINT,
     },
   },
 ]
 
+/** Ids of looks that were retired or renamed, so legacy files and saved preferences still land on their closest successor. */
+const RENAMED: Record<string, string> = { papel: "claro", pizarra: "noche" }
+
 export function presetById(id: string) {
-  return THEME_PRESETS.find((preset) => preset.id === id)
+  const target = RENAMED[id] ?? id
+  return THEME_PRESETS.find((preset) => preset.id === target)
 }
 
 export function defaultAppearance(): Appearance {
