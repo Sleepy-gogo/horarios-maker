@@ -11,16 +11,6 @@ import { quickExport } from "../exporter"
 import { CompactMenu, MenuBar } from "./MenuBar"
 import { SaveStatus } from "./SaveStatus"
 
-function BrandMark() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-6 shrink-0">
-      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="var(--primary)" />
-      <rect x="6" y="6" width="5" height="7" rx="1.5" fill="var(--primary-foreground)" />
-      <rect x="13" y="9" width="5" height="9" rx="1.5" fill="var(--primary-foreground)" opacity=".7" />
-    </svg>
-  )
-}
-
 export function TopBar() {
   const tier = useLayoutTier()
   const doc = useStudio((state) => state.session?.doc)
@@ -32,21 +22,10 @@ export function TopBar() {
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-1 border-b border-border bg-[var(--chrome-bg,var(--background))] px-2 sm:gap-2 sm:px-3">
-      {phone ? (
+      {tier !== "desktop" ? (
         <CompactMenu />
-      ) : tier !== "desktop" ? (
-        <div className="flex shrink-0 items-center gap-1">
-          <BrandMark />
-          <CompactMenu />
-        </div>
       ) : (
-        <>
-          <div className="flex shrink-0 items-center gap-2 pr-1">
-            <BrandMark />
-            <span className="hidden text-sm font-semibold tracking-tight xl:inline">Horario Studio</span>
-          </div>
-          <MenuBar />
-        </>
+        <MenuBar />
       )}
       <div className="mx-1 h-5 w-px shrink-0 bg-border max-sm:hidden" aria-hidden="true" />
       <div className="min-w-0 flex-1">
@@ -64,7 +43,7 @@ export function TopBar() {
             className="max-w-full"
           />
         ) : (
-          <span className="truncate text-sm text-muted-foreground">{phone ? "Horario Studio" : ""}</span>
+          <span className="truncate text-sm text-muted-foreground">Sin proyecto abierto</span>
         )}
       </div>
       {doc ? (
